@@ -1,55 +1,77 @@
-import { Injectable, inject, Inject } from '@angular/core';
-import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
-import { BehaviorSubject, map, Observable } from 'rxjs';
-import { ChatService as ApiChatService, ChatRoomDTOListServiceResponse } from '@libs/api-client';
-import { ChatMessageDTO, ChatRoomDTO, CreateChatRoomDTO } from '@libs/api-client';
+import { HubConnectionBuilder, HubConnection } from '@microsoft/signalr';
+import { Injectable, Inject, Optional } from '@angular/core';
+import { map, Subject } from 'rxjs';
 import { BASE_PATH } from '@libs/api-client/variables';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChatService {
-  private hubConnection: HubConnection | null = null;
-  private apiChatService = inject(ApiChatService);
-  private baseUrl = inject(BASE_PATH);
+  private hubConnection: HubConnection | undefined;
+  private errorSubject = new Subject<string>();
+  apiChatService
 
-  // Subjects for real-time updates
-  private messagesSubject = new BehaviorSubject<ChatMessageDTO[]>([]);
-  messages$ = this.messagesSubject.asObservable();
+  constructor(@Optional() @Inject(BASE_PATH) private basePath: string) {
+    this.basePath = basePath || '';
+  }
 
-  async startConnection(): Promise<void> {
+  public startConnection = async () => {
+    this.hubConnection = new HubConnectionBuilder()
+      .withUrl(`${this.basePath}/chatHub`, {
+        accessTokenFactory: () => localStorage.getItem('accessToken') || ''
+      })
+      .withAutomaticReconnect()
+      .build();
+
     try {
-      this.hubConnection = new HubConnectionBuilder()
-        .withUrl(`${this.baseUrl}/chatHub`)
-        .build();
-
       await this.hubConnection.start();
-      console.log('SignalR Connected');
-
-      this.hubConnection.on('ReceiveMessage', (message: ChatMessageDTO) => {
-        const currentMessages = this.messagesSubject.value;
-        this.messagesSubject.next([...currentMessages, message]);
-      });
+      console.log('Connection started');
     } catch (err) {
-      console.error('Error while starting SignalR connection: ', err);
+      console.error('Error while starting connection: ', err);
+      throw err;
+    }
+  };
+
+  private ensureConnection(): asserts this is { hubConnection: HubConnection } {
+    if (!this.hubConnection) {
+      throw new Error('No connection available');
     }
   }
 
   async joinRoom(roomId: number): Promise<void> {
-    if (this.hubConnection) {
-      await this.hubConnection.invoke('JoinRoom', roomId);
+    this.ensureConnection();
+    if(this.hubConnection) {
+      try {
+        await this.hubConnection.invoke('JoinRoom', roomId);
+      } catch (err) {
+        const errorMessage = 'Failed to join room: ' + (err instanceof Error ? err.message : String(err));
+        this.errorSubject.next(errorMessage);
+        throw err;
+      }
+
     }
+   
   }
 
   async leaveRoom(roomId: number): Promise<void> {
-    if (this.hubConnection) {
+    this.ensureConnection();
+    try {
       await this.hubConnection.invoke('LeaveRoom', roomId);
+    } catch (err) {
+      const errorMessage = 'Failed to leave room: ' + (err instanceof Error ? err.message : String(err));
+      this.errorSubject.next(errorMessage);
+      throw err;
     }
   }
 
   async sendMessage(roomId: number, message: string): Promise<void> {
-    if (this.hubConnection) {
+    this.ensureConnection();
+    try {
       await this.hubConnection.invoke('SendMessage', roomId, message);
+    } catch (err) {
+      const errorMessage = 'Failed to send message: ' + (err instanceof Error ? err.message : String(err));
+      this.errorSubject.next(errorMessage);
+      throw err;
     }
   }
 
@@ -74,7 +96,12 @@ export class ChatService {
 
   disconnect(): void {
     if (this.hubConnection) {
-      this.hubConnection.stop();
+      try {
+        this.hubConnection.stop();
+      } catch (err) {
+        const errorMessage = 'Error disconnecting: ' + (err instanceof Error ? err.message : String(err));
+        this.errorSubject.next(errorMessage);
+      }
     }
   }
 }

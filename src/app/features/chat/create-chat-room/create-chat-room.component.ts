@@ -37,7 +37,6 @@ import { MasterDataService } from '@services/master-data.service';
     MatAutocompleteModule
   ],
   templateUrl: './create-chat-room.component.html',
-  styleUrls: ['./create-chat-room.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CreateChatRoomComponent {

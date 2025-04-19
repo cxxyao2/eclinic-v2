@@ -1,6 +1,6 @@
 <div class="h-full flex gap-4">
   <!-- Left Sidebar - Participants List -->
-  <div class="w-80 border-r bg-white h-full flex flex-col">
+  <div class="w-80 border-r h-full flex flex-col bg-white">
     <div class="p-4 border-b">
       <h2 class="text-xl font-semibold">Participants</h2>
     </div>
@@ -15,10 +15,15 @@
   </div>
 
   <!-- Right Side - Chat Messages -->
-  <div class="flex-1 flex flex-col h-full bg-gray-50">
+  <div class="flex-1 flex flex-col h-full bg-white ">
     <!-- Chat Header -->
     <div class="p-4 border-b bg-white">
       <h2 class="text-xl font-semibold">Chat Room</h2>
+      @if (errorMessage()) {
+        <div class="mt-2 text-sm text-red-600 dark:text-red-400 animate-fade-in">
+          {{ errorMessage() }}
+        </div>
+      }
     </div>
 
     <!-- Messages Container -->

@@ -58,6 +58,8 @@ export class ChatRoomComponent {
     }
   ];
 
+  protected readonly errorMessage = signal<string>('');
+
   constructor() {
     this.route.paramMap.pipe(
       map(params => Number(params.get('roomId'))),
@@ -69,6 +71,13 @@ export class ChatRoomComponent {
       .subscribe(messages => this.messages.set(messages));
 
     this.initializeRoom();
+
+    // Subscribe to chat service errors
+    this.chatService.errors$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(error => {
+        this.errorMessage.set(error);
+      });
   }
 
   private async initializeRoom(): Promise<void> {
@@ -77,7 +86,7 @@ export class ChatRoomComponent {
 
     this.chatService.getRoomMessages(this.roomId())
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(messages => this.messages.set(messages));
+      .subscribe((messages:ChatMessageDTO[]) => this.messages.set(messages));
   }
 
   protected onMessageSent(message: string): void {
