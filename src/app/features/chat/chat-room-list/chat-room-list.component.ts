@@ -8,9 +8,10 @@ import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { toSignal } from '@angular/core/rxjs-interop';
 
-import { ChatService } from '@core/services/signalr-chat.service';
+
 import { ChatRoomDTO } from '@libs/api-client';
 import { ChatRoomCardComponent } from './chat-room-card/chat-room-card.component';
+import { SignalRChatService } from '@core/services/signalr-chat.service';
 
 @Component({
   selector: 'app-chat-room-list',
@@ -61,10 +62,10 @@ import { ChatRoomCardComponent } from './chat-room-card/chat-room-card.component
 })
 export class ChatRoomListComponent {
   // Dependencies
-  private readonly chatService = inject(ChatService);
+  private readonly signalRChatService = inject(SignalRChatService);
 
   // Public signals
-  protected readonly rooms = toSignal(this.chatService.getChatRooms(), {
+  protected readonly rooms = toSignal(this.signalRChatService.getChatRooms(), {
     initialValue: [] as ChatRoomDTO[]
   });
 }

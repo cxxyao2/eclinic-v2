@@ -1,6 +1,6 @@
-import { HubConnectionBuilder, HubConnection } from '@microsoft/signalr';
 import { Injectable, Inject, Optional, inject } from '@angular/core';
-import { map, Observable, Subject } from 'rxjs';
+import { HubConnectionBuilder, HubConnection } from '@microsoft/signalr';
+import { Observable, Subject, BehaviorSubject, map } from 'rxjs';
 import { BASE_PATH } from '@libs/api-client/variables';
 import { ChatMessageDTO, ChatRoomDTO, ChatRoomDTOListServiceResponse, ChatService, CreateChatRoomDTO } from '@libs/api-client';
 
@@ -10,10 +10,11 @@ import { ChatMessageDTO, ChatRoomDTO, ChatRoomDTOListServiceResponse, ChatServic
 export class SignalRChatService {
   public hubConnection: HubConnection | undefined;
   private errorSubject = new Subject<string>();
+  private messagesSubject = new BehaviorSubject<ChatMessageDTO[]>([]);
   private apiChatService = inject(ChatService);
 
-  // Expose errors as an Observable
   public errors$ = this.errorSubject.asObservable();
+  public messages$ = this.messagesSubject.asObservable();
 
   constructor(@Optional() @Inject(BASE_PATH) private basePath: string) {
     this.basePath = basePath || '';
@@ -30,6 +31,13 @@ export class SignalRChatService {
     try {
       await this.hubConnection.start();
       console.log('Connection started');
+      
+      // Set up message receiver
+      this.hubConnection.on('ReceiveMessage', (message: ChatMessageDTO) => {
+        const currentMessages = this.messagesSubject.value;
+        this.messagesSubject.next([...currentMessages, message]);
+      });
+
     } catch (err) {
       const errorMessage = 'Error while starting connection: ' + (err instanceof Error ? err.message : String(err));
       this.errorSubject.next(errorMessage);
@@ -91,10 +99,16 @@ export class SignalRChatService {
     );
   }
 
-  getRoomMessages(roomId: number): Observable<ChatMessageDTO[]> {
-    return this.apiChatService.apiChatRoomsRoomIdMessagesGet(roomId).pipe(
-      map((response) => response.data ?? [])
-    );
+  async getRoomMessages(roomId: number): Promise<void> {
+    try {
+      const response = await this.apiChatService.apiChatRoomsRoomIdMessagesGet(roomId).toPromise();
+      const messages = response?.data ?? [];
+      this.messagesSubject.next(messages);
+    } catch (err) {
+      const errorMessage = 'Failed to fetch messages: ' + (err instanceof Error ? err.message : String(err));
+      this.errorSubject.next(errorMessage);
+      throw err;
+    }
   }
 
   disconnect(): void {
