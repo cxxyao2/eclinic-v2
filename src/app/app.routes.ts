@@ -52,6 +52,16 @@ export const routes: Routes = [
                         loadComponent: () => import('./features/admin/admin.component').then(c => c.AdminComponent),
                         canActivate: [authGuard],
                     },
+                    {
+                        path: 'authorization',
+                        loadComponent: () => import('./features/admin/authorization/authorization.component').then(c => c.AuthorizationComponent),
+                        canActivate: [authGuard],
+                    },
+                    {
+                        path: 'login-history',
+                        loadComponent: () => import('./features/admin/user-log-history/user-log-history.component').then(c => c.UserLogHistoryComponent),
+                        canActivate: [authGuard],
+                    },
                 ]
             }
         ]

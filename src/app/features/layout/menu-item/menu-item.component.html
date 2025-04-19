@@ -30,11 +30,9 @@
 
   <!-- Submenu -->
   @if (expanded() && hasSubItems(item())) {
-
-  @for(child of item().subItems; track child.label) {
-  <app-menu-item [item]="child" [depth]="depth() + 1" [showLabel]="showLabel()">
-  </app-menu-item>
-  }
-  >
-  }
+    @for(child of item().subItems; track child.label) {
+    <app-menu-item [item]="child" [depth]="depth() + 1" [showLabel]="showLabel()">
+    </app-menu-item>
+    }
+}
 </ng-container>

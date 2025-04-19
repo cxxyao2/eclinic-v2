@@ -73,16 +73,17 @@ export class SidebarComponent {
     {
       icon: "hub",
       label: "Admin",
+      route: 'admin',
       subItems: [
         {
           icon: 'admin_panel_settings',
           label: 'User Authorization',
-          route: 'admin'
+          route: 'admin/authorization'
         },
         {
           icon: 'history_toggle_off',
           label: 'User Login History',
-          route: 'admin'
+          route: 'admin/login-history'
         },
       ]
     },
