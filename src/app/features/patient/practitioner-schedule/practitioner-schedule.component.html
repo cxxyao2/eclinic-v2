@@ -1,0 +1,104 @@
+<h2 class="text-2xl font-bold mb-6">Practitioner Schedule</h2>
+
+<form class="flex flex-wrap gap-4 p-4">
+  <app-profile 
+    [profileInfo]="selectedPractitioner()" 
+    [imagePath]="imagePath()"
+    class="w-full md:w-auto">
+  </app-profile>
+
+  <div class="flex-1">
+    <div class="flex flex-wrap items-start gap-4">
+      <!-- Loading Spinner -->
+      @if (isLoadingResults) {
+        <div class="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
+          <mat-spinner></mat-spinner>
+        </div>
+      }
+
+      <!-- Practitioner Select -->
+      <mat-form-field class="w-full md:w-64">
+        <mat-label>Practitioner</mat-label>
+        <mat-select 
+          data-cy="cyPractitionerList" 
+          [formControl]="practitionerIdControl"
+          (selectionChange)="onPractitionerChange($event)">
+          @for (prac of practitioners(); track prac) {
+            <mat-option [value]="prac.practitionerId">
+              {{ prac.firstName + ' ' + prac.lastName }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Date Picker -->
+      <mat-form-field class="w-full md:w-64">
+        <mat-label>Work Day</mat-label>
+        <input 
+          matInput 
+          [matDatepicker]="picker"
+          [formControl]="workDayControl">
+        <mat-datepicker-toggle 
+          matIconSuffix 
+          [for]="picker">
+        </mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+
+      <!-- Action Buttons -->
+      <div class="flex gap-2 ml-auto">
+        <button 
+          mat-raised-button 
+          color="warn"
+          (click)="onDeleteSchedule()"
+          class="hover:bg-red-700 transition-colors">
+          <mat-icon>delete</mat-icon>
+          Delete
+        </button>
+        <button 
+          mat-raised-button 
+          color="primary"
+          (click)="saveSchedule()"
+          class="hover:bg-blue-700 transition-colors">
+          <mat-icon>save</mat-icon>
+          Save
+        </button>
+      </div>
+    </div>
+
+    <!-- Schedule Table -->
+    <div class="mt-4 overflow-x-auto">
+      <table 
+        mat-table 
+        [dataSource]="dataSource" 
+        class="w-full">
+        
+        <!-- Day Column -->
+        <ng-container matColumnDef="day">
+          <th mat-header-cell *matHeaderCellDef>{{ columnHeaders['day'] }}</th>
+          <td mat-cell *matCellDef="let row">{{ row.day }}</td>
+        </ng-container>
+
+        <!-- From Time Column -->
+        <ng-container matColumnDef="fromTime">
+          <th mat-header-cell *matHeaderCellDef>{{ columnHeaders['fromTime'] }}</th>
+          <td mat-cell *matCellDef="let row">{{ row.fromTime }}</td>
+        </ng-container>
+
+        <!-- End Time Column -->
+        <ng-container matColumnDef="endTime">
+          <th mat-header-cell *matHeaderCellDef>{{ columnHeaders['endTime'] }}</th>
+          <td mat-cell *matCellDef="let row">{{ row.endTime }}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <mat-paginator 
+        [pageSizeOptions]="[5, 10, 25, 100]"
+        class="mt-4">
+      </mat-paginator>
+    </div>
+  </div>
+</form>

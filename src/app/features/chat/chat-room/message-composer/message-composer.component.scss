@@ -1,0 +1,7 @@
+:host {
+  display: block;
+}
+
+mat-form-field {
+  --mdc-outlined-text-field-outline-color: var(--mat-app-outline);
+}

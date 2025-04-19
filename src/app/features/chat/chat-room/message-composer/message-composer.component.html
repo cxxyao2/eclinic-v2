@@ -1,0 +1,39 @@
+<div class="flex items-end gap-2">
+  <mat-form-field 
+    appearance="outline" 
+    class="flex-grow">
+    <textarea 
+      matInput 
+      #messageInput
+      [formControl]="messageControl"
+      placeholder="Type a message..."
+      (input)="autoResizeTextarea()"
+      rows="1"
+      maxlength="2000"
+      class="resize-none max-h-[150px] overflow-y-auto
+             scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300/20 hover:scrollbar-thumb-gray-300/30
+             focus:scrollbar-thumb-gray-300/40"
+    ></textarea>
+    <mat-hint align="end" class="text-xs text-gray-500">
+      {{ messageControl.value.length }}/2000
+    </mat-hint>
+  </mat-form-field>
+
+  <button 
+    mat-mini-fab 
+    [disabled]="!messageControl.value.trim()"
+    (click)="sendMessage()"
+    class="w-10 h-10 mb-3
+           transition-colors duration-200 ease-in-out
+           flex items-center justify-center
+           disabled:opacity-50 disabled:cursor-not-allowed"
+    [ngClass]="{
+      'bg-[var(--mat-app-primary)] text-[var(--mat-app-on-primary)]': messageControl.value.trim(),
+      'bg-gray-200 text-gray-400': !messageControl.value.trim()
+    }"
+  >
+    <mat-icon class="text-lg w-5 h-5">send</mat-icon>
+  </button>
+</div>
+
+

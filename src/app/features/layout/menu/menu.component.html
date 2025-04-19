@@ -1,0 +1,12 @@
+<div class="flex flex-col min-h-screen">
+    <app-header></app-header>
+    <!-- Main Content -->
+    <div class="flex flex-1" [style.background-color]="'var(--mat-sys-surface-container)'">
+        <app-sidebar />
+
+        <!-- Main Content Area -->
+        <main class="flex-1 p-6 md:ml-0">
+            <router-outlet></router-outlet>
+        </main>
+    </div>
+</div>

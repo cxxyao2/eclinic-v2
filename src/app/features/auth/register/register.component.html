@@ -1,0 +1,105 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-50">
+  <div class="w-full max-w-md p-4">
+    <mat-card class="p-8 shadow-lg rounded-lg">
+      <div class="text-center mb-2 md:mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">Create Account</h2>
+      </div>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-2 md:space-y-6">
+        <div>
+          <mat-form-field class="w-full">
+            <mat-label>First Name</mat-label>
+            <input matInput formControlName="firstName" placeholder="Enter your first name">
+            @if (registerForm.get('firstName')?.hasError('required') && registerForm.get('firstName')?.touched) {
+            <mat-error>First name is required</mat-error>
+            }
+            @if (registerForm.get('firstName')?.hasError('minlength')) {
+            <mat-error>First name must be at least 2 characters</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div>
+          <mat-form-field class="w-full">
+            <mat-label>Last Name</mat-label>
+            <input matInput formControlName="lastName" placeholder="Enter your last name">
+            @if (registerForm.get('lastName')?.hasError('required') && registerForm.get('lastName')?.touched) {
+            <mat-error>Last name is required</mat-error>
+            }
+            @if (registerForm.get('lastName')?.hasError('minlength')) {
+            <mat-error>Last name must be at least 2 characters</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div>
+          <mat-form-field class="w-full">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="email" placeholder="Enter your email" type="email">
+            @if (registerForm.get('email')?.hasError('required') && registerForm.get('email')?.touched) {
+            <mat-error>Email is required</mat-error>
+            }
+            @if (registerForm.get('email')?.hasError('email')) {
+            <mat-error>Please enter a valid email address</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div>
+          <mat-form-field class="w-full">
+            <mat-label>Password</mat-label>
+            <input matInput formControlName="password" [type]="hidePassword ? 'password' : 'text'"
+              placeholder="Enter your password">
+            <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
+              <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+            </button>
+            @if (registerForm.get('password')?.hasError('required') && registerForm.get('password')?.touched) {
+            <mat-error>Password is required</mat-error>
+            }
+            @if (registerForm.get('password')?.hasError('minlength')) {
+            <mat-error>Password must be at least 6 characters</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div>
+          <mat-form-field class="w-full">
+            <mat-label>Confirm Password</mat-label>
+            <input matInput formControlName="confirmPassword" [type]="hidePassword ? 'password' : 'text'"
+              placeholder="Confirm your password">
+            @if (registerForm.get('confirmPassword')?.hasError('required') &&
+            registerForm.get('confirmPassword')?.touched) {
+            <mat-error>Please confirm your password</mat-error>
+            }
+            @if (registerForm.hasError('mismatch')) {
+            <mat-error>Passwords do not match</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        @if (errorMessage()) {
+        <div class="bg-red-50 text-red-700 p-4 rounded-md mb-4" role="alert">
+          {{ errorMessage() }}
+        </div>
+        }
+
+        <div>
+          <button mat-raised-button type="submit" [disabled]="registerForm.invalid"
+            class="w-full py-3 sm:py-1 text-base font-medium">
+            Register
+          </button>
+        </div>
+
+        <div class="text-center mt-2 md:mt-6">
+          <p class="text-sm text-[var(--mat-sys-on-surface-variant)]">
+            Already have an account?
+            <a [routerLink]="['/login']"
+              class="text-[var(--mat-sys-primary)] hover:text-[var(--mat-sys-primary-container)] font-medium transition-colors">
+              Login here
+            </a>
+          </p>
+        </div>
+      </form>
+    </mat-card>
+  </div>
+</div>

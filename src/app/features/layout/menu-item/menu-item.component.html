@@ -1,0 +1,40 @@
+<ng-container *transloco="let t">
+  <a class="flex items-center w-full px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+    [ngStyle]="{ 'padding-left': ((depth() === 0 || !showLabel()) ? 4 : depth() * 12 + 4) + 'px' }"
+    (click)="onItemSelected(item())" [ngClass]="{
+       'min-w-[256px]': showLabel(),
+       'bg-primary/10 dark:bg-primary/20': isActive(item().route),
+       'text-primary dark:text-primary-light': isActive(item().route)
+     }" [matTooltip]="!showLabel() ? t(item().label.toLowerCase()) : ''" [matTooltipPosition]="'right'"
+    [attr.aria-label]="!showLabel() ? t(item().label.toLowerCase()) : ''">
+
+    <!-- Icon -->
+    <mat-icon class="h-6 w-6 shrink-0">
+      {{ item().icon }}
+    </mat-icon>
+
+    <!-- Label -->
+    @if (showLabel()) {
+    <span class="ml-3 text-sm font-medium">
+      {{ t(item().label.toLowerCase()) }}
+    </span>
+    }
+
+    <!-- Expand/Collapse Icon -->
+    @if (hasSubItems(item())) {
+    <mat-icon class="ml-auto transform transition-transform duration-200" [ngClass]="{ 'rotate-180': expanded() }">
+      expand_more
+    </mat-icon>
+    }
+  </a>
+
+  <!-- Submenu -->
+  @if (expanded() && hasSubItems(item())) {
+
+  @for(child of item().subItems; track child.label) {
+  <app-menu-item [item]="child" [depth]="depth() + 1" [showLabel]="showLabel()">
+  </app-menu-item>
+  }
+  >
+  }
+</ng-container>

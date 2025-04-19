@@ -1,0 +1,14 @@
+{
+  "foo": "Foo",
+  "bar": "Bar",
+  "checkin": "Check In",
+  "login": "Login",
+  "logout": "Logout",
+  "dashboard": "Dashboard",
+  "available": "Available",
+  "consultation": "Consultation",
+  "admin": "Admin",
+  "booking": "Booking",
+  "check in": "Check in",
+  "inpatient": "Inpatient"
+}

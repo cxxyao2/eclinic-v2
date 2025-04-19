@@ -1,0 +1,53 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <h2 class="text-2xl font-bold mb-6">Waiting List</h2>
+
+  <mat-tab-group 
+    [selectedIndex]="currentIndex"
+    (selectedIndexChange)="onTabChange($event)"
+    class="bg-white rounded-lg shadow-lg">
+    
+    <!-- Screen 1 -->
+    <mat-tab label="Current Queue">
+      <div class="p-6">
+        <div class="grid grid-cols-3 gap-4">
+          @for (patient of patients(); track patient.visitId) {
+            <div class="bg-blue-500 text-white p-4 rounded-lg shadow-md hover:bg-blue-600 transition-colors">
+              <p class="font-semibold">{{ patient.patientName }}</p>
+              <p class="text-sm opacity-90">Visit ID: {{ patient.visitId }}</p>
+            </div>
+          }
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Screen 2 -->
+    <mat-tab label="Now Serving">
+      <div class="p-6">
+        <div class="flex justify-center items-center min-h-[300px]">
+          @if (patients().length > 0) {
+            <div class="text-center">
+              <h3 class="text-xl font-bold text-blue-600">Now Serving</h3>
+              <p class="text-3xl mt-4">{{ patients()[0]?.patientName }}</p>
+            </div>
+          } @else {
+            <p class="text-gray-500">No patients currently being served</p>
+          }
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Screen 3 -->
+    <mat-tab label="Upcoming">
+      <div class="p-6">
+        <div class="space-y-4">
+          @for (patient of patients().slice(1); track patient.visitId) {
+            <div class="bg-gray-100 p-4 rounded-lg hover:bg-gray-200 transition-colors">
+              <p class="font-semibold">{{ patient.patientName }}</p>
+              <p class="text-sm text-gray-600">Expected: {{ patient.visitDate | date:'shortTime' }}</p>
+            </div>
+          }
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

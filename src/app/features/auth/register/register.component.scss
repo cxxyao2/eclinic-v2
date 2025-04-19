@@ -1,0 +1,12 @@
+// Only keep Material-specific theme overrides
+@use "@angular/material" as mat;
+
+// Customize the entire app. Change :root to your selector if you want to scope the styles.
+:host {
+  @include mat.button-overrides(
+    (
+      protected-container-color: var(--mat-sys-primary),
+      protected-label-text-color: var(--mat-sys-on-primary),
+    )
+  );
+}

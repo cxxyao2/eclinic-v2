@@ -1,0 +1,93 @@
+<div class="p-6">
+    <h3 class="text-xl font-semibold mb-6">
+        Practitioner: {{(practitioner().firstName + " " + practitioner().lastName) | uppercase}}
+    </h3>
+
+    <form [formGroup]="diagnosisForm" class="space-y-6">
+        <!-- Patient Selection Section -->
+        <div class="flex items-center justify-between">
+            <div class="flex-1">
+                @if(scheduledVisits().length > 0) {
+                    <mat-form-field class="w-full">
+                        <mat-label>Patient & Booked Time</mat-label>
+                        <mat-select [formControl]="visitControl">
+                            @for (prac of scheduledVisits(); track prac) {
+                                <mat-option [value]="prac">
+                                    {{ prac.patientName + " " + (prac.visitDate| date:'HH:mm') }}
+                                </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                } @else {
+                    <div class="text-gray-500">No appointment today.</div>
+                }
+            </div>
+
+            <div class="flex items-center space-x-4">
+                @if(isProcessing()) {
+                    <mat-checkbox [formControl]="needsAdmissionControl" class="mr-4">
+                        Need admission
+                    </mat-checkbox>
+                    <button mat-flat-button color="primary" 
+                            (click)="onEnd()" type="button"
+                            class="px-6 py-2">
+                        End Consultation
+                    </button>
+                } @else {
+                    <button mat-flat-button color="primary"  type="button"
+                            (click)="onStart()"
+                            class="px-6 py-2">
+                        Start Consultation
+                    </button>
+                }
+            </div>
+        </div>
+
+        <!-- Main Content Container -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Doctor's Opinion Section -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <mat-tab-group animationDuration="0ms" class="min-h-[400px]">
+                    <mat-tab label="Diagnosis">
+                        <div class="space-y-4 pt-4">
+                            @if(needAdmission()) {
+                                <div class="flex items-center text-red-600 font-semibold bg-red-50 p-4 rounded">
+                                    <mat-icon class="mr-2">warning</mat-icon>
+                                    This patient will require immediate hospital admission and nursing care.
+                                </div>
+                            }
+
+                            <mat-form-field class="w-full">
+                                <mat-label>Symptoms</mat-label>
+                                <input matInput [formControl]="diagnosisControl" aria-label="Symptoms" />
+                            </mat-form-field>
+
+                            <mat-form-field class="w-full">
+                                <mat-label>Treatment</mat-label>
+                                <input matInput [formControl]="treatmentControl" aria-label="Treatment" />
+                            </mat-form-field>
+                        </div>
+                    </mat-tab>
+
+                    <mat-tab label="Prescriptions">
+                        <app-consulation-form-medic #prescriptionTable></app-consulation-form-medic>
+                    </mat-tab>
+
+                    <mat-tab label="Signature">
+                        <div class="pt-4">
+                            <!--todo <app-canvas #signature></app-canvas> -->
+                        </div>
+                    </mat-tab>
+                </mat-tab-group>
+            </div>
+
+            <!-- Patient Information Section todo -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <!-- <app-image-review 
+                    [imageFile]="imageFile()" 
+                    [isOpen]="isImageViewerOpen()">
+                </app-image-review> -->
+            </div>
+        </div>
+    </form>
+</div>

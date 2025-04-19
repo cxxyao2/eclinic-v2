@@ -1,0 +1,41 @@
+<div class="user-table-container">
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+
+        <!-- User ID Column -->
+        <ng-container matColumnDef="userID">
+            <th mat-header-cell *matHeaderCellDef> User ID </th>
+            <td mat-cell *matCellDef="let element"> {{element.userID}} </td>
+        </ng-container>
+
+        <!-- User Name Column -->
+        <ng-container matColumnDef="userName">
+            <th mat-header-cell *matHeaderCellDef> User Name </th>
+            <td mat-cell *matCellDef="let element"> {{element.userName}} </td>
+        </ng-container>
+
+        <!-- User Role Column -->
+        <ng-container matColumnDef="role">
+            <th mat-header-cell *matHeaderCellDef> User Role </th>
+            <td mat-cell *matCellDef="let element">
+                <div class="role-select-container">
+                    <mat-form-field>
+                        <mat-select [(value)]="element.role">
+                            @for (role of userRoles; track role) {
+                            <mat-option [value]="role.value">{{role.text}}</mat-option>
+                            }</mat-select>
+                    </mat-form-field>
+                </div>
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <div class="button-container">
+        <button mat-stroked-button (click)="save()">
+            <mat-icon>save</mat-icon>
+            Save
+        </button>
+    </div>
+</div>

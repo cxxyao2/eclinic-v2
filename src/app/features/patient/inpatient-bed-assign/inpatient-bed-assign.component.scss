@@ -1,0 +1,64 @@
+.actions{
+  display: flex;
+  justify-content:flex-start;
+  flex-wrap: wrap;
+  margin: 10px auto;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  width: 120px;
+}
+
+.room {
+  display: grid;
+  grid-template-columns: 50% 50%;
+  width: 100%;
+  gap: 16px;
+}
+
+.bed {
+  width: 120px;
+  padding: 10px;
+  border: 1px solid var(--mat-app-outline);
+  border-radius: 8px;
+  cursor: move;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background-color: var(--mat-app-primary-container);
+  cursor: move;
+  &.empty {
+    background-color: var(--mat-app-tertiary-container);
+  }
+  &.selected {
+    color:var(--mat-app-on-error-container);
+  }
+}
+
+.bed:hover {
+  background-color: var(--mat-app-surface-variant);
+}
+
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 4px;
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+              0 8px 10px 1px rgba(0, 0, 0, 0.14),
+              0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+
+.example-custom-placeholder {
+  background: #ccc;
+  border: dotted 3px #999;
+  min-height: 60px;
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}

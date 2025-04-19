@@ -1,0 +1,23 @@
+<h2 mat-dialog-title>{{ data.title }}</h2>
+<mat-dialog-content>
+    <!-- Check if data.content is an array -->
+    <ng-container *ngIf="isArray()">
+        <form [formGroup]="form">
+            <mat-selection-list #itemsList [formControl]="itemsControl" name="items" [multiple]="false">
+                <mat-list-option *ngFor="let item of listData()" [value]="item[data.optionId!]">
+                    {{ item[data.optionValue!] }}
+                </mat-list-option>
+            </mat-selection-list>
+        </form>
+    </ng-container>
+
+    <!-- Fallback for single object or other content -->
+    <ng-container *ngIf="!isArray()">
+        <p>{{ data.content }}</p>
+    </ng-container>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+    <button mat-stroked-button [hidden]="!data.isCancelButtonVisible" (click)="onCancel()">Cancel</button>
+    <button mat-flat-button [mat-dialog-close]="onSelectionChange()" cdkFocusInitial>Ok</button>
+</mat-dialog-actions>

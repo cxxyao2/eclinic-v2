@@ -1,0 +1,10 @@
+@use "@angular/material" as mat;
+
+:host {
+  @include mat.button-overrides(
+    (
+      protected-container-color: var(--mat-sys-primary),
+      protected-label-text-color: var(--mat-sys-on-primary),
+    )
+  );
+}

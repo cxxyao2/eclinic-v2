@@ -1,0 +1,64 @@
+<div class="p-4 max-w-7xl mx-auto">
+  <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
+    <span>Room: {{roomNumber}}</span>
+    <span class="text-gray-600">Patient: {{patientInWaiting()?.patientName}}</span>
+  </h3>
+
+  <!-- Action Buttons -->
+  <div class="flex flex-wrap gap-4 mb-6">
+    <button 
+      mat-fab 
+      extended 
+      (click)="addToRoom()"
+      class="bg-blue-600 hover:bg-blue-700 transition-colors">
+      <mat-icon>add</mat-icon>
+      Add
+    </button>
+
+    <button 
+      mat-fab 
+      extended 
+      (click)="removeFromRoom()"
+      class="bg-red-600 hover:bg-red-700 transition-colors">
+      <mat-icon>delete</mat-icon>
+      Remove
+    </button>
+
+    <button 
+      mat-fab 
+      extended 
+      (click)="onSave()"
+      class="bg-green-600 hover:bg-green-700 transition-colors">
+      <mat-icon>save</mat-icon>
+      Save
+    </button>
+  </div>
+
+  <!-- Beds Grid -->
+  <div 
+    cdkDropList 
+    class="grid grid-cols-1 md:grid-cols-2 gap-4"
+    (cdkDropListDropped)="drop($event)">
+    @for (bed of bedsOfRoom; track bed.bedNumber) {
+      <div 
+        class="p-4 rounded-lg shadow-md transition-all duration-200 cursor-move
+               {{!bed.patientName ? 'bg-gray-100' : 'bg-white'}}
+               {{bed.patientName === patientInWaiting()?.patientName ? 'ring-2 ring-blue-500' : ''}}"
+        [class.empty]="!bed.patientName"
+        [class.selected]="bed.patientName === patientInWaiting()?.patientName"
+        cdkDrag>
+        <div class="bg-gray-200 rounded p-2" *cdkDragPlaceholder></div>
+        
+        <div class="space-y-2 text-center">
+          <p class="font-medium">Bed: {{bed.bedNumber}}</p>
+          <p class="text-gray-600">
+            Patient: {{bed.patientName || 'empty'}}
+          </p>
+          <p class="text-gray-600">
+            Doctor: {{bed.practitionerName || 'empty'}}
+          </p>
+        </div>
+      </div>
+    }
+  </div>
+</div>

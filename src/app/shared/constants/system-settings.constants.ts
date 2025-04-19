@@ -1,0 +1,1 @@
+export const SCHEDULE_DURATION = 25; // 25 minutes

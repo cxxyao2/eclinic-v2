@@ -1,0 +1,87 @@
+<div class="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8">
+    <!-- Header -->
+    <div class="text-center">
+      <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+        Create New Chat Room
+      </h2>
+      <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+        Select a patient and set a topic to start a new conversation
+      </p>
+    </div>
+
+    <!-- Error Message -->
+    @if (errorMessage()) {
+      <div class="rounded-md bg-red-50 dark:bg-red-900/50 p-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" 
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" 
+                    clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm text-red-700 dark:text-red-200">
+              {{ errorMessage() }}
+            </p>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Form -->
+    <form [formGroup]="roomForm" 
+          (ngSubmit)="onSubmit()" 
+          class="mt-8 space-y-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+      
+      <!-- Patient Selection -->
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Patient Name</mat-label>
+        <input type="text"  aria-label="Patient Name"
+               matInput 
+               formControlName="patient" 
+               [matAutocomplete]="auto"
+               class="dark:bg-gray-700">
+        <mat-autocomplete #auto="matAutocomplete" 
+                         [displayWith]="displayFn"
+                         (optionSelected)="onPatientSelected($event)">
+          @for (patient of filteredPatients$ | async; track patient.patientId) {
+            <mat-option [value]="patient" 
+                       class="dark:bg-gray-700 dark:text-gray-100">
+              {{ patient.firstName }} {{ patient.lastName }}
+              <span class="text-gray-500 dark:text-gray-400">
+                (ID: {{ patient.patientId }})
+              </span>
+            </mat-option>
+          }
+        </mat-autocomplete>
+      </mat-form-field>
+
+      <!-- Topic Input -->
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Topic</mat-label>
+        <input matInput aria-label="Topic"
+               formControlName="topic"
+               class="dark:bg-gray-700">
+      </mat-form-field>
+
+      <!-- Submit Button -->
+      <div>
+        <button type="submit"
+                mat-raised-button 
+                color="primary"
+                [disabled]="!roomForm.valid"
+                class="w-full py-3 px-4 border border-transparent rounded-md
+                       shadow-sm text-sm font-medium text-white
+                       bg-[var(--mat-app-primary)]
+                       hover:opacity-90 focus:outline-none focus:ring-2
+                       focus:ring-offset-2 focus:ring-[var(--mat-app-primary)]
+                       disabled:opacity-50 disabled:cursor-not-allowed
+                       transition-opacity duration-200">
+          Create Room
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

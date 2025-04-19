@@ -1,0 +1,41 @@
+<ng-container *transloco="let t">
+    <mat-toolbar class="fixed top-0 z-50 flex items-center justify-between bg-primary text-on-primary  px-4">
+        <!-- Left section -->
+        <div class="flex items-center gap-2">
+            @if (isSmallScreen()) {
+            <button mat-icon-button (click)="toggleSidebar()" class="hover:bg-primary-dark" matTooltip="Toggle Sidebar"
+                aria-label="Toggle sidebar">
+                <mat-icon>menu</mat-icon>
+            </button>
+            }
+            <span class="text-xl font-semibold">EClinic</span>
+        </div>
+
+        <!-- Right section -->
+        <div class="flex items-center gap-2">
+            <button mat-icon-button [routerLink]="['/search']" class="hover:bg-primary-dark" matTooltip="Search"
+                aria-label="Search">
+                <mat-icon>search</mat-icon>
+            </button>
+
+            <button mat-icon-button (click)="toggleTheme()" class="hover:bg-primary-dark" matTooltip="Toggle Theme"
+                aria-label="Toggle theme">
+                <mat-icon>{{ isDarkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+            </button>
+
+            @if (user()) {
+            <button mat-flat-button (click)="logout()"
+                class="ml-2 flex items-center gap-2 bg-primary-dark hover:bg-primary-darker">
+                <span class="capitalize">{{ user()?.userName }}</span>
+                <mat-icon class="h-5 w-5">logout</mat-icon>
+            </button>
+            } @else {
+            <button mat-flat-button [routerLink]="['/login']"
+                class="ml-2 flex items-center gap-2 bg-primary-dark hover:bg-primary-darker">
+                <mat-icon class="h-5 w-5">login</mat-icon>
+                <span>Login</span>
+            </button>
+            }
+        </div>
+    </mat-toolbar>
+</ng-container>

@@ -1,0 +1,38 @@
+<svg
+    width="100"
+    height="100"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+>
+    <!-- Earpiece -->
+    <circle cx="6" cy="4" r="2" fill="#333" />
+    <circle cx="18" cy="4" r="2" fill="#333" />
+
+    <!-- Tubing to the earpieces -->
+    <path
+        d="M6 6 C6 10, 10 12, 12 12 S18 10, 18 6"
+        stroke="#333"
+        stroke-width="2"
+        fill="none"
+    />
+
+    <!-- Tubing from the earpieces to the diaphragm -->
+    <path
+        d="M12 12 L12 18 C12 19.5, 14 19.5, 14 18"
+        stroke="#333"
+        stroke-width="2"
+        fill="none"
+    />
+
+    <!-- Diaphragm -->
+    <circle cx="14" cy="18" r="3" fill="#333" />
+
+    <!-- Lower tubing and bulb -->
+    <path
+        d="M14 21 C14 22, 12 22, 12 21"
+        stroke="#333"
+        stroke-width="2"
+        fill="none"
+    />
+</svg>
