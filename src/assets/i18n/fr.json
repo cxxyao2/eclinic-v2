@@ -1,14 +1,19 @@
 {
-  "foo": "Foo",
+  "admin": "Admin",
+  "admin/authorization": "Autorisation d'utilisateur",
+  "admin/login-history": "Historique des connexions",
+  "admission": "Admission",
+  "available": "Disponible",
   "bar": "Bar",
+  "booking": "RDV",
+  "chat": "Chat",
+  "check in": "Arrivée",
   "checkin": "Enregistrer",
+  "consultation": "Consultation",
+  "dashboard": "Tableau de bord",
+  "foo": "Foo",
+  "inpatient": "Hospitalisé",
   "login": "s'connecter",
   "logout": "s'déconnecter",
-  "dashboard": "Tableau de bord",
-  "available": "Disponible",
-  "consultation": "Consultation",
-  "admin": "Admin",
-  "booking": "RDV",
-  "check in": "Arrivée",
-  "inpatient": "Hospitalisé"
+  "toggle": "Basculer"
 }

@@ -1,14 +1,19 @@
 {
-  "foo": "Foo",
+  "admin": "Admin",
+  "user authorization": "User Authorization",
+  "user login history": "Login History",
+  "admission": "Admission",
+  "available": "Available",
   "bar": "Bar",
+  "booking": "Booking",
+  "chat": "Chat",
+  "check in": "Check in",
   "checkin": "Check In",
+  "consultation": "Consultation",
+  "dashboard": "Dashboard",
+  "foo": "Foo",
+  "inpatient": "Inpatient",
   "login": "Login",
   "logout": "Logout",
-  "dashboard": "Dashboard",
-  "available": "Available",
-  "consultation": "Consultation",
-  "admin": "Admin",
-  "booking": "Booking",
-  "check in": "Check in",
-  "inpatient": "Inpatient"
+  "toggle": "Toggle"
 }

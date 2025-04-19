@@ -7,6 +7,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute } from '@angular/router';
+import { map } from 'rxjs/operators';
 
 import { ChatService } from '@services/chat.service';
 import { ChatMessageDTO } from '@libs/api-client';
@@ -32,7 +34,8 @@ import { ParticipantComponent } from './participant/participant.component';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChatRoomComponent {
-  protected roomId = input.required<number>();
+  private readonly route = inject(ActivatedRoute);
+  protected readonly roomId = signal<number>(0);
 
   private chatService = inject(ChatService);
   private destroyRef = inject(DestroyRef);
@@ -41,20 +44,26 @@ export class ChatRoomComponent {
   protected messageControl = new FormControl('', { nonNullable: true });
   protected currentUserId = 1; // TODO: Get from auth service
 
+  // todo. should use resource + signal to get participants
   protected participants = [
     {
       userId: 1,
       name: 'Dr. Smith',
-      avatarUrl: 'assets/avatars/doctor.png'
+      avatarUrl: 'assets/avatars/doctor.jpg'
     },
     {
       userId: 2,
       name: 'John Doe',
-      avatarUrl: 'assets/avatars/patient.png'
+      avatarUrl: 'assets/avatars/patient.jpg'
     }
   ];
 
   constructor() {
+    this.route.paramMap.pipe(
+      map(params => Number(params.get('roomId'))),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(id => this.roomId.set(id));
+
     this.chatService.messages$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(messages => this.messages.set(messages));

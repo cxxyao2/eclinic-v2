@@ -23,6 +23,18 @@
                 <mat-icon>{{ isDarkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
             </button>
 
+            <button mat-flat-button [matMenuTriggerFor]="beforeMenu">
+                <mat-icon>language</mat-icon>
+                {{currentLanguage()}}
+            </button>
+            <mat-menu #beforeMenu="matMenu" xPosition="before">
+                <button mat-menu-item (click)="toggleLanguage('en')" type="button">English</button>
+                <button mat-menu-item (click)="toggleLanguage('fr')" type="button">French</button>
+                <button mat-menu-item (click)="toggleLanguage('cn')" type="button">Chinese</button>
+                <button mat-menu-item (click)="toggleLanguage('jp')" type="button">Japanese</button>
+            </mat-menu>
+
+
             @if (user()) {
             <button mat-flat-button (click)="logout()"
                 class="ml-2 flex items-center gap-2 bg-primary-dark hover:bg-primary-darker">

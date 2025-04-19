@@ -9,13 +9,13 @@
       placeholder="Type a message..."
       (input)="autoResizeTextarea()"
       rows="1"
-      maxlength="2000"
+      [maxlength]="MAX_MESSAGE_LENGTH"
       class="resize-none max-h-[150px] overflow-y-auto
              scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300/20 hover:scrollbar-thumb-gray-300/30
              focus:scrollbar-thumb-gray-300/40"
     ></textarea>
     <mat-hint align="end" class="text-xs text-gray-500">
-      {{ messageControl.value.length }}/2000
+      {{ messageControl.value.length }}/{{ MAX_MESSAGE_LENGTH }}
     </mat-hint>
   </mat-form-field>
 

@@ -1,0 +1,20 @@
+{
+  "admin": "管理员",
+  "admin/authorization": "用户授权",
+  "admin/login-history": "登录历史",
+  "admission": "入院",
+  "available": "可用",
+  "bar": "栏目",
+  "booking": "预约",
+  "chat": "聊天",
+  "check in": "签到",
+  "checkin": "签到",
+  "consultation": "问诊",
+  "dashboard": "仪表板",
+  "foo": "示例",
+  "inpatient": "住院病人",
+  "login": "登录",
+  "logout": "退出",
+  "toggle": "切换"
+}
+  

@@ -27,7 +27,7 @@ const materialFormFieldConfig = {
 
 const translocoConfig = {
   config: {
-    availableLangs: ['en'],
+    availableLangs: ['en', 'fr', 'jp', 'cn'],
     defaultLang: 'en',
     reRenderOnLangChange: true,
     prodMode: !isDevMode(),

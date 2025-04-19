@@ -1,0 +1,20 @@
+{
+  "admin": "管理者",
+  "admin/authorization": "ユーザー認証",
+  "admin/login-history": "ログイン履歴",
+  "admission": "入院",
+  "available": "利用可能",
+  "bar": "バー",
+  "booking": "予約",
+  "chat": "チャット",
+  "check in": "チェックイン",
+  "checkin": "チェックイン",
+  "consultation": "診察",
+  "dashboard": "ダッシュボード",
+  "foo": "フー",
+  "inpatient": "入院患者",
+  "login": "ログイン",
+  "logout": "ログアウト",
+  "toggle": "切り替え"
+}
+  

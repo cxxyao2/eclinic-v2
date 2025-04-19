@@ -1,18 +1,26 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatMenuModule } from '@angular/material/menu';
 
 import { toSignal } from '@angular/core/rxjs-interop';
 
 import { ResponsiveService } from '@core/services/responsive.service';
 import { SidebarStateService } from '@core/services/sidebar-state.service';
 import { MasterDataService } from '@core/services/master-data.service';
-import { TranslocoModule } from '@jsverse/transloco';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 
+// Application imports - Models
+const LANGUAGE_MAP: Record<string, string> = {
+  en: 'English',
+  fr: 'French',
+  ch: 'Chinese',
+  jp: 'Japanese'
+} as const;
 
 @Component({
   selector: 'app-header',
@@ -21,6 +29,7 @@ import { TranslocoModule } from '@jsverse/transloco';
     CommonModule,
     RouterLink,
     MatIconModule,
+    MatMenuModule,
     MatToolbarModule,
     MatButtonModule,
     MatTooltipModule,
@@ -32,6 +41,7 @@ import { TranslocoModule } from '@jsverse/transloco';
 })
 export class HeaderComponent {
   // Private service injections
+  private readonly transloco = inject(TranslocoService);
   private readonly sidebarState = inject(SidebarStateService);
   private readonly responsiveService = inject(ResponsiveService);
   private readonly masterDataService = inject(MasterDataService);
@@ -41,7 +51,15 @@ export class HeaderComponent {
   protected readonly isDarkMode = signal(false);
   protected readonly isSmallScreen = this.responsiveService.isSmallScreen;
   protected readonly user = toSignal(this.masterDataService.userSubject);
+  protected readonly currentLanguage = computed(() =>
+    LANGUAGE_MAP[this.transloco.getActiveLang()] || 'English'
+  );
 
+
+
+  protected toggleLanguage(lang: string): void {
+    this.transloco.setActiveLang(lang);
+  }
 
   // Protected methods (used in template)
   protected toggleSidebar(): void {
