@@ -6,7 +6,11 @@ import { UserRole } from '@libs/api-client';
 import { map } from 'rxjs';
 import { User } from '@libs/api-client';
 
-export const authGuard: CanActivateFn = (next: ActivatedRouteSnapshot,
+const isAdmin = (user: User | null): boolean => {
+  return user?.role === UserRole.Admin;
+};
+
+export const adminGuard: CanActivateFn = (next: ActivatedRouteSnapshot,
   state: RouterStateSnapshot) => {
   const masterService = inject(MasterDataService);
   const router = inject(Router);
@@ -15,7 +19,7 @@ export const authGuard: CanActivateFn = (next: ActivatedRouteSnapshot,
   const user = masterService.userSubject.value;
   
   if (user) {
-    return true;
+    return isAdmin(user);
   }
 
   return masterService.validateTokenAndFetchUser().pipe(
@@ -26,7 +30,7 @@ export const authGuard: CanActivateFn = (next: ActivatedRouteSnapshot,
         return false;
       }
       
-      return true;
+      return isAdmin(user);
     })
   );
 };

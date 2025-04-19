@@ -71,6 +71,11 @@ export class SidebarComponent {
       route: 'consultation'
     },
     {
+      icon: 'chat',
+      label: 'Chat',
+      route: 'chat'
+    },
+    {
       icon: "hub",
       label: "Admin",
       route: 'admin',

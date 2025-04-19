@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
+import { catchError, tap, throwError } from 'rxjs';
 
 // Material Imports
 import { MatCardModule } from '@angular/material/card';
@@ -11,7 +12,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
 // Services
-import { AuthService } from '@libs/api-client';
+import { AuthService, User } from '@libs/api-client';
 import { MasterDataService } from '@core/services/master-data.service';
 
 
@@ -69,6 +70,7 @@ export class LoginComponent {
     this.masterService.userSubject.next(response.user);
     this.errorMessage.set(null);
     this.router.navigateByUrl(this.returnUrl || '/dashboard');
+
   }
 
   private handleLoginError(error: HttpErrorResponse): void {

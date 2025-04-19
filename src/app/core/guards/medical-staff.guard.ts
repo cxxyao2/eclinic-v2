@@ -20,5 +20,6 @@ export const medicalStaffGuard: CanActivateFn = (next: ActivatedRouteSnapshot,
   if (user.role === UserRole.Nurse || user.role === UserRole.Practitioner) {
     return true;
   }
+  snackbar.show('You are not medical staff', 'error-snackbar');
   return false;
 };
