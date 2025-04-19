@@ -1,14 +1,14 @@
-import { 
-  ChangeDetectionStrategy, 
-  Component, 
-  inject 
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { toSignal } from '@angular/core/rxjs-interop';
 
-import { ChatService } from '@services/chat.service';
+import { ChatService } from '@core/services/signalr-chat.service';
 import { ChatRoomDTO } from '@libs/api-client';
 import { ChatRoomCardComponent } from './chat-room-card/chat-room-card.component';
 
@@ -16,8 +16,8 @@ import { ChatRoomCardComponent } from './chat-room-card/chat-room-card.component
   selector: 'app-chat-room-list',
   standalone: true,
   imports: [
-    CommonModule, 
-    RouterModule, 
+    CommonModule,
+    RouterModule,
     MatButtonModule,
     ChatRoomCardComponent
   ],

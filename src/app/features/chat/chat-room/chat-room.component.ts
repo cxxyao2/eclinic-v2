@@ -10,7 +10,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { map } from 'rxjs/operators';
 
-import { ChatService } from '@services/chat.service';
+import { ChatService, SignalRChatService } from '@core/services/signalr-chat.service';
 import { ChatMessageDTO } from '@libs/api-client';
 import { MessageComposerComponent } from './message-composer/message-composer.component';
 import { ParticipantComponent } from './participant/participant.component';
@@ -37,7 +37,7 @@ export class ChatRoomComponent {
   private readonly route = inject(ActivatedRoute);
   protected readonly roomId = signal<number>(0);
 
-  private chatService = inject(ChatService);
+  private chatService = inject(SignalRChatService);
   private destroyRef = inject(DestroyRef);
 
   protected messages = signal<ChatMessageDTO[]>([]);
@@ -66,10 +66,7 @@ export class ChatRoomComponent {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(id => this.roomId.set(id));
 
-    this.chatService.messages$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(messages => this.messages.set(messages));
-
+  
     this.initializeRoom();
 
     // Subscribe to chat service errors
@@ -86,7 +83,7 @@ export class ChatRoomComponent {
 
     this.chatService.getRoomMessages(this.roomId())
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((messages:ChatMessageDTO[]) => this.messages.set(messages));
+      .subscribe((messages: ChatMessageDTO[]) => this.messages.set(messages));
   }
 
   protected onMessageSent(message: string): void {

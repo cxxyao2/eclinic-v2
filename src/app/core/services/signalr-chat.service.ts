@@ -1,15 +1,19 @@
 import { HubConnectionBuilder, HubConnection } from '@microsoft/signalr';
-import { Injectable, Inject, Optional } from '@angular/core';
-import { map, Subject } from 'rxjs';
+import { Injectable, Inject, Optional, inject } from '@angular/core';
+import { map, Observable, Subject } from 'rxjs';
 import { BASE_PATH } from '@libs/api-client/variables';
+import { ChatMessageDTO, ChatRoomDTO, ChatRoomDTOListServiceResponse, ChatService, CreateChatRoomDTO } from '@libs/api-client';
 
 @Injectable({
   providedIn: 'root'
 })
-export class ChatService {
-  private hubConnection: HubConnection | undefined;
+export class SignalRChatService {
+  public hubConnection: HubConnection | undefined;
   private errorSubject = new Subject<string>();
-  apiChatService
+  private apiChatService = inject(ChatService);
+
+  // Expose errors as an Observable
+  public errors$ = this.errorSubject.asObservable();
 
   constructor(@Optional() @Inject(BASE_PATH) private basePath: string) {
     this.basePath = basePath || '';
@@ -27,30 +31,29 @@ export class ChatService {
       await this.hubConnection.start();
       console.log('Connection started');
     } catch (err) {
-      console.error('Error while starting connection: ', err);
+      const errorMessage = 'Error while starting connection: ' + (err instanceof Error ? err.message : String(err));
+      this.errorSubject.next(errorMessage);
       throw err;
     }
   };
 
   private ensureConnection(): asserts this is { hubConnection: HubConnection } {
     if (!this.hubConnection) {
-      throw new Error('No connection available');
+      const errorMessage = 'No connection available';
+      this.errorSubject.next(errorMessage);
+      throw new Error(errorMessage);
     }
   }
 
   async joinRoom(roomId: number): Promise<void> {
     this.ensureConnection();
-    if(this.hubConnection) {
-      try {
-        await this.hubConnection.invoke('JoinRoom', roomId);
-      } catch (err) {
-        const errorMessage = 'Failed to join room: ' + (err instanceof Error ? err.message : String(err));
-        this.errorSubject.next(errorMessage);
-        throw err;
-      }
-
+    try {
+      await this.hubConnection.invoke('JoinRoom', roomId);
+    } catch (err) {
+      const errorMessage = 'Failed to join room: ' + (err instanceof Error ? err.message : String(err));
+      this.errorSubject.next(errorMessage);
+      throw err;
     }
-   
   }
 
   async leaveRoom(roomId: number): Promise<void> {
