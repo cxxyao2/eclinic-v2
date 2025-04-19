@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { adminGuard } from '@core/guards/admin.guard';
 import { authGuard } from '@core/guards/auth.guard';
 import { medicalStaffGuard } from '@core/guards/medical-staff.guard';
 import { ActiveAccountComponent } from '@features/auth/active-account/active-account.component';
@@ -18,6 +19,14 @@ export const routes: Routes = [
                 path: 'chat',
                 loadComponent: () => import('./features/chat/chat-room-list/chat-room-list.component').then(c => c.ChatRoomListComponent),
                 canActivate: [medicalStaffGuard],
+            },
+            {
+                path: 'chat/:roomId',
+                loadComponent: () => import('./features/chat/chat-room/chat-room.component').then(c => c.ChatRoomComponent)
+            },
+            {
+                path: 'chatroom-create',
+                loadComponent: () => import('./features/chat/create-chat-room/create-chat-room.component').then(c => c.CreateChatRoomComponent)
             },
             {
                 path: 'dashboard',
@@ -50,17 +59,17 @@ export const routes: Routes = [
                     {
                         path: '',
                         loadComponent: () => import('./features/admin/admin.component').then(c => c.AdminComponent),
-                        canActivate: [authGuard],
+                        canActivate: [adminGuard],
                     },
                     {
                         path: 'authorization',
                         loadComponent: () => import('./features/admin/authorization/authorization.component').then(c => c.AuthorizationComponent),
-                        canActivate: [authGuard],
+                        canActivate: [adminGuard],
                     },
                     {
                         path: 'login-history',
                         loadComponent: () => import('./features/admin/user-log-history/user-log-history.component').then(c => c.UserLogHistoryComponent),
-                        canActivate: [authGuard],
+                        canActivate: [adminGuard],
                     },
                 ]
             }

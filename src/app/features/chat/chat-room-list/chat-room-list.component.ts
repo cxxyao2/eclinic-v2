@@ -31,7 +31,7 @@ import { ChatRoomCardComponent } from './chat-room-card/chat-room-card.component
         
         <button 
           mat-raised-button 
-          [routerLink]="['/chat/create']"
+          [routerLink]="['/chatroom-create']"
           class="bg-[var(--mat-app-primary)] text-[var(--mat-app-on-primary)]
                  hover:opacity-90 transition-opacity duration-200
                  px-4 py-2 rounded-lg shadow-sm"
