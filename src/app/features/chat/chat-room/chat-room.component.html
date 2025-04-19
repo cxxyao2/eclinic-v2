@@ -1,24 +1,21 @@
 <div class="h-full flex gap-4">
   <!-- Left Sidebar - Participants List -->
-  <div class="w-80 border-r h-full flex flex-col bg-white">
-    <div class="p-4 border-b">
-      <h2 class="text-xl font-semibold">Participants</h2>
+  <div class="w-80 border-r border-[var(--mat-sys-outline-variant)] h-full flex flex-col bg-[var(--mat-sys-surface-container-lowest)]">
+    <div class="p-4 relative shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_6px_-1px_rgba(255,255,255,0.1)]">
+      <h2 class="text-xl font-semibold text-[var(--mat-sys-on-surface)]">Participants</h2>
     </div>
     <div class="flex-1 overflow-y-auto">
       @for (participant of participants; track participant.userId) {
-        <app-participant
-          [name]="participant.name"
-          [avatarUrl]="participant.avatarUrl"
-        />
+      <app-participant [name]="participant.name" [avatarUrl]="participant.avatarUrl" />
       }
     </div>
   </div>
 
   <!-- Right Side - Chat Messages -->
-  <div class="flex-1 flex flex-col h-full bg-white ">
+  <div class="flex-1 flex flex-col h-full bg-[var(--mat-sys-surface-container-lowest)]">
     <!-- Chat Header -->
-    <div class="p-4 border-b bg-white">
-      <h2 class="text-xl font-semibold">Chat Room</h2>
+    <div class="p-4 bg-[var(--mat-sys-surface-container-lowest)] relative shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_6px_-1px_rgba(255,255,255,0.1)]">
+      <h2 class="text-xl font-semibold text-[var(--mat-sys-on-surface)]">Chat Room</h2>
       @if (errorMessage()) {
         <div class="mt-2 text-sm text-red-600 dark:text-red-400 animate-fade-in">
           {{ errorMessage() }}
@@ -31,10 +28,9 @@
       @for (message of messages(); track message.messageId) {
         <div class="flex" [class]="message.senderId === currentUserId ? 'justify-end' : 'justify-start'">
           <div class="max-w-[70%] rounded-lg p-3 message-bubble"
-               [class]="message.senderId === currentUserId ? 'sent' : 'received'">
-            <div class="break-words">{{ message.content }}</div>
-            <div class="text-xs mt-1 message-time" 
-                 [class]="message.senderId === currentUserId ? 'sent' : 'received'">
+               [class]="message.senderId === currentUserId ? 'bg-[var(--mat-sys-primary)] text-[var(--mat-sys-on-primary)] rounded-tr-none' : 'bg-[var(--mat-sys-surface-container-high)] text-[var(--mat-sys-on-surface)] rounded-tl-none'">
+            <div class="break-words text-[var(--mat-sys-on-surface)]">{{ message.content }}</div>
+            <div class="text-xs mt-1 message-time" [class]="message.senderId === currentUserId ? 'sent' : 'received'">
               {{ message.createdAt | date:'short' }}
             </div>
           </div>
@@ -43,12 +39,9 @@
     </div>
 
     <!-- Message Composer -->
-    <div class="p-4 border-t bg-white">
-      <app-message-composer 
-        [roomId]="roomId()" 
-        (messageSent)="onMessageSent($event)">
+    <div class="p-4 bg-[var(--mat-sys-surface-container-lowest)] relative shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] dark:shadow-[0_-4px_6px_-1px_rgba(255,255,255,0.1)]">
+      <app-message-composer [roomId]="roomId()" (messageSent)="onMessageSent($event)">
       </app-message-composer>
     </div>
   </div>
 </div>
-
