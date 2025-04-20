@@ -1,11 +1,15 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { UserProfile } from '@shared/models/userProfile.model';
 
 
 @Component({
   selector: 'app-profile',
-  imports: [MatIconModule],
+  imports: [
+    MatIconModule,
+    MatTooltipModule
+  ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
   standalone: true,
@@ -13,5 +17,5 @@ import { UserProfile } from '@shared/models/userProfile.model';
 })
 export class ProfileComponent {
   imagePath = input<string>('assets/images/sarah.jpg');
-  profileInfo = input.required<UserProfile>();
+  profileInfo = input.required<Partial<UserProfile>>();
 }

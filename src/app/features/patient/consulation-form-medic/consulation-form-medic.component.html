@@ -94,7 +94,7 @@
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns" 
-                class="bg-gray-50"></tr>
+               ></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"
                 class="hover:bg-gray-50"></tr>
 
@@ -108,6 +108,6 @@
 
         <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" 
                       aria-label="Select page of medications"
-                      class="bg-white"></mat-paginator>
+                      ></mat-paginator>
     </div>
 </div>

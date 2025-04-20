@@ -1,5 +1,5 @@
 // Angular Core Imports
-import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, ViewChild, inject, signal } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, ViewChild, inject, signal, resource, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,18 +17,14 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, concatMap, finalize, from, map, merge, of as observableOf, startWith, switchMap } from 'rxjs';
+import { catchError, concatMap, finalize, from, map, merge, of as observableOf, startWith, switchMap, firstValueFrom } from 'rxjs';
 
 // Third-Party Libraries
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
 // Application-Specific Imports
-
-
 import { AddPractitionerScheduleDTO, GetPractitionerDTO, GetPractitionerScheduleDTO, PractitionerSchedulesService } from '@libs/api-client';
-
-import { UserProfile } from '@models/userProfile.model';
 import { ProfileComponent } from '@shared/components/profile/profile.component';
 import { SCHEDULE_DURATION } from '@shared/constants/system-settings.constants';
 import { MasterDataService } from '@core/services/master-data.service';
@@ -74,12 +70,7 @@ export class PractitionerScheduleComponent implements AfterViewInit {
   protected readonly imagePath = signal('assets/images/smiling-doctor.jpg');
   protected readonly savedFlag = signal(false);
   protected readonly practitioners = signal<GetPractitionerDTO[]>([]);
-  protected readonly selectedPractitioner = signal<UserProfile>({
-    id: 0,
-    firstName: "",
-    lastName: "",
-    age: 30
-  });
+  protected readonly selectedPractitioner = signal<GetPractitionerDTO>({} as GetPractitionerDTO);
 
   // Form Controls
   protected readonly workDayControl = new FormControl<Date | null>(new Date());
@@ -88,9 +79,18 @@ export class PractitionerScheduleComponent implements AfterViewInit {
   protected readonly practitionerId$ = toSignal(this.practitionerIdControl.valueChanges, { initialValue: 0 });
 
   // Table Data
-  protected readonly dataSource = new MatTableDataSource<GetPractitionerScheduleDTO>([]);
+  protected readonly scheduleData = signal<GetPractitionerScheduleDTO[]>([]);
+
+  // // Computed dataSource from scheduleData signal
+  // protected readonly dataSource = computed(() => {
+  //   const tableData = new MatTableDataSource(this.scheduleData().values());
+  //   tableData.paginator = this.paginator;
+  //   tableData.sort = this.sort;
+  //   return tableData;
+  // });
+
   protected readonly displayedColumns: readonly string[] = ['day', 'fromTime', 'endTime'];
-  protected isLoadingResults = false;
+
 
   // Private Properties
   private readonly initialData: GetPractitionerScheduleDTO[] = [];
@@ -108,9 +108,31 @@ export class PractitionerScheduleComponent implements AfterViewInit {
   private readonly scheduleService = inject(PractitionerSchedulesService);
   private readonly destroyRef = inject(DestroyRef);
 
+  // Create computed signal for request parameters
+  private readonly scheduleParams = computed(() => ({
+    practitionerId: this.practitionerIdControl.value,
+    workDate: this.workDayControl.value
+  }));
+
+  // Replace fetchScheduleData with resource
+  protected readonly scheduleResource = resource<GetPractitionerScheduleDTO[], { practitionerId: number | null, workDate: Date | null }>({
+    request: () => this.scheduleParams(),
+    loader: async ({ request }) => {
+      if (!request.practitionerId || !request.workDate) {
+        return [];
+      }
+      const response = await firstValueFrom(
+        this.scheduleService.apiPractitionerSchedulesGet(
+          request.practitionerId,
+          new Date(request.workDate)
+        )
+      );
+      return response?.data ?? [];
+    }
+  });
+
   public ngAfterViewInit(): void {
     this.initializePractitionerData();
-    this.initializeScheduleData();
   }
 
   protected onPractitionerChange(event: MatSelectChange): void {
@@ -118,19 +140,14 @@ export class PractitionerScheduleComponent implements AfterViewInit {
     const practitioner = this.practitioners().find((p) => p.practitionerId === id);
 
     if (practitioner) {
-      this.selectedPractitioner.set({
-        id,
-        firstName: practitioner.firstName ?? '',
-        lastName: practitioner.lastName ?? '',
-        age: 30
-      });
+      this.selectedPractitioner.set(practitioner);
     }
   }
 
   protected saveSchedule(): void {
     this.savedFlag.set(false);
 
-    const newData = this.dataSource.data.filter((entity) => (entity.scheduleId ?? 0) === 0);
+    const newData = this.scheduleData().filter((entity) => (entity.scheduleId ?? 0) === 0);
     if (newData.length > 0) {
       this.addNewSchedules(newData);
     }
@@ -153,9 +170,8 @@ export class PractitionerScheduleComponent implements AfterViewInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(result => {
         if (result !== undefined) {
-          this.deletedData.push(...this.dataSource.data.filter((entity) => (entity.scheduleId ?? 0) > 0));
-          this.changedData.length = 0;
-          this.dataSource.data = [];
+          this.deletedData.push(...this.scheduleData().filter((entity) => (entity.scheduleId ?? 0) > 0));
+          this.scheduleData.set([]);
         }
       });
   }
@@ -169,39 +185,6 @@ export class PractitionerScheduleComponent implements AfterViewInit {
       });
   }
 
-  private initializeScheduleData(): void {
-    merge(this.workDayControl.valueChanges, this.practitionerIdControl.valueChanges)
-      .pipe(
-        startWith({}),
-        switchMap(() => this.fetchScheduleData()),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe(data => {
-        this.dataSource.data = data ?? [];
-        this.dataSource.paginator = this.paginator;
-      });
-  }
-
-  private fetchScheduleData() {
-    const practitionerId = this.practitionerIdControl.value;
-    const workDate = this.workDayControl.value;
-
-    if (!practitionerId || !workDate) {
-      this.isLoadingResults = false;
-      return observableOf(null);
-    }
-
-    this.isLoadingResults = true;
-
-    return this.scheduleService.apiPractitionerSchedulesGet(
-      practitionerId,
-      new Date(workDate)
-    ).pipe(
-      map(response => response?.data ?? []),
-      catchError(() => observableOf(null)),
-      finalize(() => this.isLoadingResults = false)
-    );
-  }
 
   private addOneSchedule(data: GetPractitionerScheduleDTO) {
     const newEntity: AddPractitionerScheduleDTO = { ...data };
@@ -249,7 +232,7 @@ export class PractitionerScheduleComponent implements AfterViewInit {
   }
 
   private resetDataState(): void {
-    this.dataSource.data = [];
+    this.scheduleData.set([]);
     this.changedData.length = 0;
     this.deletedData.length = 0;
     this.practitionerIdControl.setValue(0, { onlySelf: true });
@@ -263,20 +246,13 @@ export class PractitionerScheduleComponent implements AfterViewInit {
       return;
     }
 
-    // TODO
-    // if (this.dataSource.data.length > 0) {
-    //   this.dialog.open(DialogSimpleDialog, {
-    //     data: { title: 'Notification', content: 'The schedule for the staff has already been created.If you want to update it, please proceed to click "Delete" button first', isCancelButtonVisible: false },
-    //   });
-    //   return;
-    // }
 
     const startDate = formatDateToYMDPlus(workDate, '00:00:00');
     const endDate = formatDateToYMDPlus(workDate, '23:30:00');
     const availabilitySlots = this.generatePractitionerScheduleSlots(startDate, endDate, this.SCHEDULE_DURATION, practitionerId || 0);
 
     this.changedData = [...availabilitySlots];
-    this.dataSource.data = [...availabilitySlots];
+    this.scheduleData.set(availabilitySlots);
   }
 
   generatePractitionerScheduleSlots(
@@ -316,7 +292,7 @@ export class PractitionerScheduleComponent implements AfterViewInit {
   }
 
   printSchedule(): void {
-    if (this.dataSource.data.length <= 0) {
+    if (this.scheduleData().length === 0) {
       this.openNoPrintDataDialog();
       return;
     }
@@ -337,7 +313,7 @@ export class PractitionerScheduleComponent implements AfterViewInit {
       { align: 'center' });
 
     const columns = ['Day', 'From Time', 'End Time'];
-    const rows = this.dataSource.data.map((slot) => [
+    const rows = this.scheduleData().map((slot) => [
       getDayOfWeek(new Date(slot.startDateTime!)),
       formatDateToHHmm(slot.startDateTime!),
       formatDateToHHmm(slot.endDateTime!)]);

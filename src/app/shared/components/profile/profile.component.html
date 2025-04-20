@@ -1,11 +1,11 @@
-<div class="flex flex-col space-y-6 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+<div class="flex flex-col  rounded-lg shadow-md">
     <!-- Image Container -->
-    <div class="relative w-full max-w-[300px] h-[200px] overflow-hidden rounded-lg">
+    <div class="relative w-full max-w-[300px] h-[200px] overflow-hidden rounded-t-lg">
         <img [src]="imagePath()" alt="Profile" class="w-full h-full object-cover" />
     </div>
 
     <!-- Profile Information -->
-    <div class="space-y-4 text-gray-800 dark:text-gray-200">
+    <div class="space-y-4 px-4 text-gray-800 dark:text-gray-200">
         <!-- Name -->
         <div class="flex items-center space-x-2">
             <span class="font-semibold uppercase text-sm text-gray-600 dark:text-gray-400">Name:</span>
@@ -32,7 +32,11 @@
         @if (profileInfo().email) {
         <div class="flex items-center space-x-2">
             <span class="font-semibold uppercase text-sm text-gray-600 dark:text-gray-400">Email:</span>
-            <span class="text-base">{{profileInfo().email}}</span>
+            <span 
+              class="text-base truncate block max-w-[200px]" 
+              [matTooltip]="profileInfo().email!"
+              matTooltipPosition="above"
+            >{{profileInfo().email}}</span>
         </div>
         }
 

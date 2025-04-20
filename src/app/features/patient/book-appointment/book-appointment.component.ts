@@ -66,7 +66,7 @@ export class BookAppointmentComponent implements AfterViewInit {
     // Signals and State
     protected readonly imagePath = signal<string>('assets/images/smiling-doctor.jpg');
     protected readonly patients = signal<GetPatientDTO[]>([]);
-    protected readonly selectedPatient = signal<UserProfile>({ id: 0, firstName: "", lastName: "", age: 30 });
+    protected readonly selectedPatient = signal<UserProfile>({} as UserProfile);
     protected isLoadingResults = false;
 
     // Form Controls
@@ -187,12 +187,7 @@ export class BookAppointmentComponent implements AfterViewInit {
         const id = event.value;
         const patient = this.patients().find((p) => p.patientId === id);
         if (patient) {
-            this.selectedPatient.set({
-                id,
-                firstName: patient.firstName ?? '',
-                lastName: patient.lastName ?? '',
-                age: 30
-            });
+            this.selectedPatient.set(patient as UserProfile);
         }
     }
 
