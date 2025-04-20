@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
   standalone: true,
   imports: [CommonModule, MatCardModule, MatIconModule],
   template: `
-    <div class="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:gap-6 sm:py-4 participant-elevation">
+    <div class=" flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:gap-4 sm:py-4 ">
       <div class="shrink-0">
         <img 
           [src]="avatarUrl" 

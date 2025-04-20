@@ -1,47 +1,86 @@
-<div class="h-full flex gap-4">
-  <!-- Left Sidebar - Participants List -->
-  <div class="w-80 border-r border-[var(--mat-sys-outline-variant)] h-full flex flex-col bg-[var(--mat-sys-surface-container-lowest)]">
-    <div class="p-4 relative shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_6px_-1px_rgba(255,255,255,0.1)]">
-      <h2 class="text-xl font-semibold text-[var(--mat-sys-on-surface)]">Participants</h2>
+<div class="h-full flex flex-col md:flex-row md:gap-4 overflow-hidden">
+  <!-- Participants List - Full sidebar on MD+ screens, Avatar strip on small screens -->
+  <div
+    class="md:w-80 md:border-r md:border-[var(--mat-sys-outline-variant)] md:h-full md:flex md:flex-col bg-[var(--mat-sys-surface-container-lowest)] rounded-lg  overflow-hidden">
+    <!-- Mobile View: Participants Strip + Message Button -->
+    <div class="flex items-center justify-between p-4 md:hidden">
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center gap-2">
+          <h2 class="text-lg font-semibold text-[var(--mat-sys-on-surface)]">
+            <span class="md:hidden">Chat - &nbsp;</span>Participants
+          </h2>
+          <span
+            class="bg-[var(--mat-sys-surface-container-high)] px-2 py-1 text-xs font-medium rounded-full text-[var(--mat-sys-on-surface)]">
+            {{participants.length}}
+          </span>
+        </div>
+        <div class="flex -space-x-2 overflow-hidden">
+          @for (participant of participants.slice(0, 6); track participant.userId) {
+          <img [src]="participant.avatarUrl" [alt]="participant.name"
+            class="inline-block h-8 w-8 rounded-full ring-2 ring-[var(--mat-sys-surface-container-lowest)]" />
+          }
+          @if (participants.length > 6) {
+          <div
+            class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-[var(--mat-sys-surface-container-high)] text-[var(--mat-sys-on-surface)] text-xs font-medium ring-2 ring-[var(--mat-sys-surface-container-lowest)]">
+            +{{participants.length - 6}}
+          </div>
+          }
+        </div>
+      </div>
+
     </div>
-    <div class="flex-1 overflow-y-auto">
-      @for (participant of participants; track participant.userId) {
-      <app-participant [name]="participant.name" [avatarUrl]="participant.avatarUrl" />
-      }
+
+    <!-- Desktop View: Full Participants List -->
+    <div class="hidden md:flex md:flex-col md:h-full  ">
+      <div class="p-4 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_6px_-1px_rgba(255,255,255,0.1)]">
+        <h2 class="text-xl font-semibold text-[var(--mat-sys-on-surface)]">Participants</h2>
+      </div>
+      <div class="flex-1 flex flex-col divide-y-4  divide-gray-200 overflow-y-auto">
+        @for (participant of participants; track participant.userId) {
+        <app-participant [name]="participant.name" [avatarUrl]="participant.avatarUrl" />
+        }
+      </div>
     </div>
   </div>
 
   <!-- Right Side - Chat Messages -->
-  <div class="flex-1 flex flex-col h-full bg-[var(--mat-sys-surface-container-lowest)]">
+  <div class="flex-1 flex flex-col h-full bg-[var(--mat-sys-surface-container-lowest)] overflow-hidden rounded-lg">
     <!-- Chat Header -->
-    <div class="p-4 bg-[var(--mat-sys-surface-container-lowest)] relative shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_6px_-1px_rgba(255,255,255,0.1)]">
-      <h2 class="text-xl font-semibold text-[var(--mat-sys-on-surface)]">Chat Room</h2>
-      @if (errorMessage()) {
+    <div
+      class="sticky top-0 z-10 bg-[var(--mat-sys-surface-container-lowest)] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_6px_-1px_rgba(255,255,255,0.1)]">
+      <div class="hidden md:block p-4">
+        <h2 class="text-lg font-semibold text-[var(--mat-sys-on-surface)]">Chat Room</h2>
+        @if (errorMessage()) {
         <div class="mt-2 text-sm text-red-600 dark:text-red-400 animate-fade-in">
           {{ errorMessage() }}
         </div>
-      }
+        }
+      </div>
+
+      <!-- Message Composer - Moved here and made sticky -->
+      <div class="p-4 bg-[var(--mat-sys-surface-container-lowest)]">
+        <app-message-composer [roomId]="roomId()" (messageSent)="onMessageSent($event)">
+        </app-message-composer>
+      </div>
     </div>
 
     <!-- Messages Container -->
     <div class="messages-container flex-1 overflow-y-auto p-4 space-y-4">
       @for (message of messages(); track message.messageId) {
-        <div class="flex" [class]="message.senderId === currentUserId ? 'justify-end' : 'justify-start'">
-          <div class="max-w-[70%] rounded-lg p-3 message-bubble"
-               [class]="message.senderId === currentUserId ? 'bg-[var(--mat-sys-primary)] text-[var(--mat-sys-on-primary)] rounded-tr-none' : 'bg-[var(--mat-sys-surface-container-high)] text-[var(--mat-sys-on-surface)] rounded-tl-none'">
-            <div class="break-words text-[var(--mat-sys-on-surface)]">{{ message.content }}</div>
-            <div class="text-xs mt-1 message-time" [class]="message.senderId === currentUserId ? 'sent' : 'received'">
-              {{ message.createdAt | date:'short' }}
-            </div>
+      <div class="flex" [class]="message.senderId === currentUserId ? 'justify-end' : 'justify-start'">
+        <div class="max-w-[70%] rounded-lg p-3 message-bubble"
+          [class]="message.senderId === currentUserId ? 'bg-[var(--mat-sys-primary)] text-[var(--mat-sys-on-primary)] rounded-tr-none' : 'bg-[var(--mat-sys-surface-container-high)] text-[var(--mat-sys-on-surface)] rounded-tl-none'">
+          <div class="break-words"
+            [class]="message.senderId === currentUserId ? 'text-[var(--mat-sys-on-primary)]' : 'text-[var(--mat-sys-on-surface-variant)]'">
+            {{ message.content }}
+          </div>
+          <div class="text-xs mt-1"
+            [class]="message.senderId === currentUserId ? 'text-[var(--mat-sys-on-primary)] opacity-80' : 'text-[var(--mat-sys-on-surface)] opacity-60'">
+            {{ message.createdAt | date:'short' }}
           </div>
         </div>
+      </div>
       }
-    </div>
-
-    <!-- Message Composer -->
-    <div class="p-4 bg-[var(--mat-sys-surface-container-lowest)] relative shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] dark:shadow-[0_-4px_6px_-1px_rgba(255,255,255,0.1)]">
-      <app-message-composer [roomId]="roomId()" (messageSent)="onMessageSent($event)">
-      </app-message-composer>
     </div>
   </div>
 </div>

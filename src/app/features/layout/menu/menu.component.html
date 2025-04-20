@@ -1,11 +1,13 @@
-<div class="flex flex-col min-h-screen">
+<div class="flex flex-col h-screen overflow-hidden">
     <app-header></app-header>
     <!-- Main Content -->
-    <div class="flex flex-1" [style.background-color]="'var(--mat-sys-surface-container)'">
-        <app-sidebar />
+    <div class="flex flex-1 overflow-hidden pt-[56px] md:pt-[64px]"
+        [style.background-color]="'var(--mat-sys-surface-container)'">
+        <!-- Sidebar -->
+        <app-sidebar class="h-[calc(100vh-56px)] md:h-[calc(100vh-64px)]" />
 
-        <!-- Main Content Area -->
-        <main class="flex-1 mt-[56px] md:mt-[64px] p-2 md:p-6">
+        <!-- Main content area -->
+        <main class="flex-1 p-2 md:p-6 overflow-hidden">
             <router-outlet></router-outlet>
         </main>
     </div>

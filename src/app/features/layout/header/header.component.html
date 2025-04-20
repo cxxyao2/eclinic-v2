@@ -1,13 +1,15 @@
 <ng-container *transloco="let t">
-    <mat-toolbar class="fixed top-0 z-50 flex items-center justify-between bg-primary text-on-primary  px-4">
+    <mat-toolbar class="fixed top-0 z-50 flex items-center justify-between bg-primary text-on-primary px-4">
         <!-- Left section -->
         <div class="flex items-center gap-2">
-            @if (isSmallScreen()) {
-            <button mat-icon-button (click)="toggleSidebar()" class="hover:bg-primary-dark" matTooltip="Toggle Sidebar"
-                aria-label="Toggle sidebar">
+            <!-- Menu button only visible on mobile -->
+            <button mat-icon-button 
+                    (click)="toggleSidebar()" 
+                    class="block md:!hidden hover:bg-primary-dark" 
+                    matTooltip="Toggle Sidebar"
+                    aria-label="Toggle sidebar">
                 <mat-icon>menu</mat-icon>
             </button>
-            }
             <span class="text-xl font-semibold">EClinic</span>
         </div>
 

@@ -8,7 +8,6 @@ import { TranslocoDirective } from '@jsverse/transloco';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { NavService } from '@services/nav.service';
-import { ResponsiveService } from '@core/services/responsive.service';
 import { SidebarStateService } from '@core/services/sidebar-state.service';
 import { MenuItem } from '../menu-item';
 
@@ -35,16 +34,15 @@ export class MenuItemComponent implements OnInit {
 
     // Protected signals
     protected readonly expanded = signal(false);
-    
+
     // Host bindings
-    @HostBinding('attr.aria-expanded') 
+    @HostBinding('attr.aria-expanded')
     protected readonly ariaExpanded = this.expanded;
 
     // Private dependencies
     private readonly destroyRef = inject(DestroyRef);
     private readonly navService = inject(NavService);
-    private readonly router = inject(Router);
-    private readonly responsiveService = inject(ResponsiveService);
+    private readonly router = inject(Router);;
     private readonly sidebarState = inject(SidebarStateService);
 
     // Add match options as a class property
@@ -92,11 +90,7 @@ export class MenuItemComponent implements OnInit {
 
     private navigateToRoute(route?: string): void {
         if (!route) return;
-
-        if (this.responsiveService.isSmallScreen()) {
-            this.sidebarState.close();
-        }
-        
+        this.sidebarState.close();
         this.router.navigate([route]);
     }
 

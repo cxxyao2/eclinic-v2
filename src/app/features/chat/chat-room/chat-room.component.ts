@@ -31,12 +31,16 @@ import { ParticipantComponent } from './participant/participant.component';
   ],
   templateUrl: './chat-room.component.html',
   styleUrls: ['./chat-room.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+ 
 })
 export class ChatRoomComponent {
   private readonly route = inject(ActivatedRoute);
   private chatService = inject(SignalRChatService);
   private destroyRef = inject(DestroyRef);
+
+  protected showMessageComposer = signal(false);
+
 
   protected readonly roomId = signal<number>(0);
   protected messages = signal<ChatMessageDTO[]>([]);
@@ -52,6 +56,51 @@ export class ChatRoomComponent {
     },
     {
       userId: 2,
+      name: 'John Doe',
+      avatarUrl: 'assets/avatars/patient.jpg'
+    },
+    {
+      userId: 3,
+      name: 'Dr. Smith',
+      avatarUrl: 'assets/avatars/doctor.jpg'
+    },
+    {
+      userId: 4,
+      name: 'John Doe',
+      avatarUrl: 'assets/avatars/patient.jpg'
+    },
+    {
+      userId: 5,
+      name: 'Dr. Smith',
+      avatarUrl: 'assets/avatars/doctor.jpg'
+    },
+    {
+      userId: 6,
+      name: 'John Doe',
+      avatarUrl: 'assets/avatars/patient.jpg'
+    },
+    {
+      userId: 7,
+      name: 'Dr. Smith',
+      avatarUrl: 'assets/avatars/doctor.jpg'
+    },
+    {
+      userId: 8,
+      name: 'John Doe',
+      avatarUrl: 'assets/avatars/patient.jpg'
+    },
+    {
+      userId: 9,
+      name: 'John Doe',
+      avatarUrl: 'assets/avatars/patient.jpg'
+    },
+    {
+      userId: 10,
+      name: 'John Doe',
+      avatarUrl: 'assets/avatars/patient.jpg'
+    },
+    {
+      userId: 11,
       name: 'John Doe',
       avatarUrl: 'assets/avatars/patient.jpg'
     }
@@ -76,6 +125,8 @@ export class ChatRoomComponent {
     this.chatService.errors$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(error => this.errorMessage.set(error));
+
+    
   }
 
   private async initializeRoom(): Promise<void> {
@@ -84,9 +135,13 @@ export class ChatRoomComponent {
     await this.chatService.getRoomMessages(this.roomId());
   }
 
+  protected toggleMessageComposer(): void {
+    this.showMessageComposer.update(value => !value);
+  }
+
   protected onMessageSent(message: string): void {
     this.chatService.sendMessage(this.roomId(), message);
-    // No need to manually refresh messages - SignalR will handle it
+   
   }
 
   ngOnDestroy() {

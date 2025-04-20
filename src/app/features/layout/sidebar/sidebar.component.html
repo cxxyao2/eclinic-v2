@@ -1,18 +1,18 @@
 <nav *transloco="let t">
     <mat-nav-list>
         <!-- Toggle button for large screens -->
-        @if(!isSmallScreen()){
-        <a mat-list-item (click)="toggleLabels()" [matTooltip]="showLabels() ? 'Hide labels' : 'Show labels'"
-            matTooltipPosition="right" class="hover:bg-gray-200">
-            <mat-icon matListItemIcon>
-                {{showLabels() ? 'arrow_left' : 'arrow_right'}}
-            </mat-icon>
-            @if(showLabels()){
-            <span class="text-sm font-medium">{{t('toggle')}}</span>
-            }
-        </a>
-        <mat-divider></mat-divider>
-        }
+        <div class="hidden md:block">
+            <a mat-list-item (click)="toggleLabels()" [matTooltip]="showLabels() ? 'Hide labels' : 'Show labels'"
+                matTooltipPosition="right" class="hover:bg-gray-200">
+                <mat-icon matListItemIcon>
+                    {{showLabels() ? 'arrow_left' : 'arrow_right'}}
+                </mat-icon>
+                @if(showLabels()){
+                <span class="text-sm font-medium">{{t('toggle')}}</span>
+                }
+            </a>
+            <mat-divider></mat-divider>
+        </div>
 
         <!-- Menu items -->
         @for(item of menuItems(); track item.label){

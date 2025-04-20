@@ -2,7 +2,6 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { SidebarStateService } from '@core/services/sidebar-state.service';
-import { ResponsiveService } from '@core/services/responsive.service';
 import { MenuItemComponent } from "../menu-item/menu-item.component";
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
@@ -15,20 +14,18 @@ import { TranslocoModule } from '@jsverse/transloco';
   standalone: true,
   templateUrl: './sidebar.component.html',
   host: {
-    'class': 'fixed  md:relative md:flex z-10  transition-transform duration-300 ease-in-out md:translate-x-0',
-    'style': `
-      left: 0;
-      --header-height: 56px;
-      border-right: 2px solid var(--mat-sys-outline-variant);
-      @media (min-width: 600px) {
-        --header-height: 64px;
-      }
-      top: var(--header-height);
-      height: calc(100vh - var(--header-height));
-      background-color: var(--mat-sys-surface-container);
-    `,
-    '[class.translate-x-0]': 'sidebarState.isOpen() || !isSmallScreen()',
-    '[class.-translate-x-full]': '!sidebarState.isOpen() && !!isSmallScreen()',
+    'class': `
+    fixed md:sticky    
+    top-[56px] md:top-0            
+    z-10 md:z-0                   
+    transition-transform duration-300  
+    border-r border-[var(--mat-sys-outline-variant)]
+    bg-[var(--mat-sys-surface-container-lowest)]
+    translate-x-[-100%] md:translate-x-0 
+    [&.open]:translate-x-0       
+    overflow-y-auto                
+  `,
+    '[class.open]': 'sidebarState.isOpen()'
   },
   imports: [
     RouterModule,
@@ -42,7 +39,6 @@ import { TranslocoModule } from '@jsverse/transloco';
 })
 export class SidebarComponent {
   protected readonly sidebarState = inject(SidebarStateService);
-  protected readonly isSmallScreen = inject(ResponsiveService).isSmallScreen;
   protected readonly showLabels = signal(true);
   protected readonly menuItems = signal<MenuItem[]>([
     {

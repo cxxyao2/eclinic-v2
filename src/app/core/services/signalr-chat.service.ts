@@ -35,7 +35,7 @@ export class SignalRChatService {
       // Set up message receiver
       this.hubConnection.on('ReceiveMessage', (message: ChatMessageDTO) => {
         const currentMessages = this.messagesSubject.value;
-        this.messagesSubject.next([...currentMessages, message]);
+        this.messagesSubject.next([message, ...currentMessages]);
       });
 
     } catch (err) {
@@ -101,9 +101,17 @@ export class SignalRChatService {
 
   async getRoomMessages(roomId: number): Promise<void> {
     try {
-      const response = await this.apiChatService.apiChatRoomsRoomIdMessagesGet(roomId).toPromise();
-      const messages = response?.data ?? [];
-      this.messagesSubject.next(messages);
+      this.apiChatService.apiChatRoomsRoomIdMessagesGet(roomId).pipe(
+        map(response => response?.data ?? []),
+        map(messages => messages.reverse())
+      ).subscribe({
+        next: (messages) => this.messagesSubject.next(messages),
+        error: (err) => {
+          const errorMessage = 'Failed to fetch messages: ' + (err instanceof Error ? err.message : String(err));
+          this.errorSubject.next(errorMessage);
+          throw err;
+        }
+      });
     } catch (err) {
       const errorMessage = 'Failed to fetch messages: ' + (err instanceof Error ? err.message : String(err));
       this.errorSubject.next(errorMessage);

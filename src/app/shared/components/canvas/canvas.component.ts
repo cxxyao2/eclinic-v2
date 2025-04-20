@@ -12,7 +12,6 @@ import {
 import { CommonModule } from '@angular/common';
 import { SignatureDTO, SignaturesService } from '@libs/api-client';
 import { MatButtonModule } from '@angular/material/button';
-import { ResponsiveService } from '@services/responsive.service';
 import { DialogSimpleDialog } from '../dialog/dialog-simple-dialog';
 import { MatDialog } from '@angular/material/dialog';
 import { SnackbarService } from '@services/snackbar-service.service';
@@ -35,12 +34,8 @@ export class CanvasComponent implements AfterViewInit {
 
   // Injected services
   private readonly signService = inject(SignaturesService);
-  private readonly responseService = inject(ResponsiveService);
   private readonly snackbarService = inject(SnackbarService);
   private readonly dialog = inject(MatDialog);
-
-  // Public properties
-  public readonly isBigScreen = this.responseService.isLargeScreen;
 
   // Private properties
   private canvas!: HTMLCanvasElement;

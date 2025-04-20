@@ -9,7 +9,6 @@ import { MatMenuModule } from '@angular/material/menu';
 
 import { toSignal } from '@angular/core/rxjs-interop';
 
-import { ResponsiveService } from '@core/services/responsive.service';
 import { SidebarStateService } from '@core/services/sidebar-state.service';
 import { MasterDataService } from '@core/services/master-data.service';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
@@ -43,13 +42,11 @@ export class HeaderComponent {
   // Private service injections
   private readonly transloco = inject(TranslocoService);
   private readonly sidebarState = inject(SidebarStateService);
-  private readonly responsiveService = inject(ResponsiveService);
   private readonly masterDataService = inject(MasterDataService);
   private readonly router = inject(Router);
 
   // Protected signals and computed values
   protected readonly isDarkMode = signal(false);
-  protected readonly isSmallScreen = this.responsiveService.isSmallScreen;
   protected readonly user = toSignal(this.masterDataService.userSubject);
   protected readonly currentLanguage = computed(() =>
     LANGUAGE_MAP[this.transloco.getActiveLang()] || 'English'
