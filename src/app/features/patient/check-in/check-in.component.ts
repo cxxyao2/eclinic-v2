@@ -28,6 +28,7 @@ import {
 } from '@libs/api-client';
 import { MasterDataService } from '@services/master-data.service';
 import { CheckInWaitingListComponent } from '../check-in-waiting-list/check-in-waiting-list.component';
+import { formatDateToYyyyMmDdPlus } from '@shared/utils/date-helpers';
 
 @Component({
   selector: 'app-check-in',
@@ -98,7 +99,8 @@ export class CheckInComponent implements AfterViewInit, OnInit {
   }
 
   private getAppointmentByDate(bookedDate: Date): void {
-    this.scheduleService.apiPractitionerSchedulesGet(undefined, bookedDate)
+    const formattedDate = formatDateToYyyyMmDdPlus(bookedDate);
+    this.scheduleService.apiPractitionerSchedulesGet(undefined, formattedDate)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: GetPractitionerScheduleDTOListServiceResponse) => {
@@ -110,7 +112,9 @@ export class CheckInComponent implements AfterViewInit, OnInit {
   }
 
   private getWaitingListByDate(bookedDate: Date): void {
-    this.visitService.apiVisitRecordsWaitingListGet(bookedDate)
+    const formatedDate = formatDateToYyyyMmDdPlus(bookedDate);
+
+    this.visitService.apiVisitRecordsWaitingListGet(formatedDate)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: GetVisitRecordDTOListServiceResponse) => {

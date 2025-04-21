@@ -18,7 +18,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       setHeaders: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
       }
     });
   };

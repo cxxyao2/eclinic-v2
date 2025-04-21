@@ -27,6 +27,7 @@ import { ConsulationFormMedicComponent } from '../consulation-form-medic/consula
 import { MasterDataService } from '@core/services/master-data.service';
 import { SnackbarService } from '@core/services/snackbar-service.service';
 import { DialogSimpleDialog } from '@shared/components/dialog/dialog-simple-dialog';
+import { formatDateToYyyyMmDdPlus } from '@shared/utils/date-helpers';
 
 
 @Component({
@@ -179,7 +180,8 @@ export class ConsultationFormComponent implements OnInit {
   }
 
   private fetchVistRecord(): void {
-    this.visitService.apiVisitRecordsGet(this.practitioner().practitionerId, this.visitDate)
+    const formatedDate = formatDateToYyyyMmDdPlus(this.visitDate);
+    this.visitService.apiVisitRecordsGet(this.practitioner().practitionerId,formatedDate)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {

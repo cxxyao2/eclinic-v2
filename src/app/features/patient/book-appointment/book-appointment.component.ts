@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, concatMap, finalize, from, map, merge, of as observableOf, startWith, switchMap, tap } from 'rxjs';
-
+import { environment } from '../../../../environments/environment';
 
 // Angular Material Imports
 import { MatButtonModule } from '@angular/material/button';
@@ -26,6 +26,8 @@ import { ProfileComponent } from '@shared/components/profile/profile.component';
 import { UserProfile } from '@shared/models/userProfile.model';
 import { MasterDataService } from '@core/services/master-data.service';
 import { SnackbarService } from '@core/services/snackbar-service.service';
+import { formatDateToYyyyMmDdPlus } from '@shared/utils/date-helpers';
+
 
 
 @Component({
@@ -72,7 +74,7 @@ export class BookAppointmentComponent implements AfterViewInit {
     // Form Controls
     protected readonly workDayControl = new FormControl<Date | null>(new Date());
     protected readonly patientIdControl = new FormControl<number | null>(0);
-    
+
     // Signals from Form Controls
     protected readonly workDay$ = toSignal(this.workDayControl.valueChanges, { initialValue: new Date() });
     protected readonly patientId$ = toSignal(this.patientIdControl.valueChanges, { initialValue: 0 });
@@ -80,7 +82,7 @@ export class BookAppointmentComponent implements AfterViewInit {
     // Table Configuration
     protected readonly displayedColumns: readonly string[] = ['index', 'practitionerName', 'startDateTime', 'endDateTime', 'patientName', 'actions'];
     protected readonly dataSource = new MatTableDataSource<GetPractitionerScheduleDTO>([]);
-    
+
     // Private State
     private initialData: GetPractitionerScheduleDTO[] = [];
     private updateData: GetPractitionerScheduleDTO[] = [];
@@ -132,7 +134,10 @@ export class BookAppointmentComponent implements AfterViewInit {
         }
 
         this.isLoadingResults = true;
-        return this.scheduleService.apiPractitionerSchedulesGet(undefined, new Date(workDate))
+        // Format the date according to API requirements
+        const formattedDate = formatDateToYyyyMmDdPlus(workDate);
+
+        return this.scheduleService.apiPractitionerSchedulesGet(undefined, formattedDate)
             .pipe(catchError(() => observableOf(null)));
     }
 
