@@ -1,110 +1,105 @@
-<!-- Header - Always at top -->
-<h2 class="text-2xl font-bold mb-6">Practitioner Schedule</h2>
+<!-- Fixed Header -->
+<h2 class="text-2xl font-bold mb-6 sticky top-0 z-10">Practitioner Schedule</h2>
 
-<!-- Main content container -->
-<div class="flex flex-col md:flex-row gap-4">
-  <!-- Left side - Profile (hidden on small screens) -->
-  <div class="hidden lg:block lg:w-64">
-    <app-profile [profileInfo]="selectedPractitioner()" [imagePath]="imagePath()"></app-profile>
-  </div>
-
-  <!-- Right side - Controls and Table -->
-  <div class="flex-1 flex flex-col gap-4">
-    <!-- Loading state -->
-    @if (isLoadingResults()) {
-    <div class="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
-      <mat-spinner></mat-spinner>
-    </div>
-    }
-
-    <!-- Error state -->
-    @if (errorMessage()) {
-    <div class="w-full p-4 text-red-500 bg-red-50 rounded">
-      {{ errorMessage() }}
-    </div>
-    }
-
-    <!-- Controls Section - Two inputs per row on md+ screens -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <!-- Practitioner Select -->
-      <mat-form-field class="w-full">
-        <mat-label>Practitioner</mat-label>
-        <mat-select data-cy="cyPractitionerList" [formControl]="practitionerIdControl"
-          (selectionChange)="onPractitionerChange($event)">
-          @for (prac of practitioners(); track prac) {
-          <mat-option [value]="prac.practitionerId">
-            {{ prac.firstName + ' ' + prac.lastName }}
-          </mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-
-      <!-- Date Picker -->
-      <mat-form-field class="w-full">
-        <mat-label>Work Day</mat-label>
-        <input matInput [matDatepicker]="picker" [formControl]="workDayControl">
-        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
-      </mat-form-field>
+<!-- Main content container with auto scroll -->
+<div class="h-[calc(100vh-100px)] overflow-auto">
+  <div class="flex flex-col md:flex-row gap-2 md:gap-4">
+    <!-- Left side - Profile (hidden on small screens) -->
+    <div class="hidden lg:block lg:w-64 flex-shrink-0">
+      <app-profile [profileInfo]="selectedPractitioner()" [imagePath]="imagePath()"></app-profile>
     </div>
 
-    <!-- Action Buttons - Single Row -->
-    <div class="flex justify-end gap-2 mt-4">
-      <button mat-raised-button color="accent" (click)="createSchedule()" class="hover:bg-green-700 transition-colors">
-        <mat-icon>add</mat-icon>
-        Create
-      </button>
-      <button mat-raised-button color="warn" (click)="onDeleteSchedule()" class="hover:bg-red-700 transition-colors">
-        <mat-icon>delete</mat-icon>
-        Delete
-      </button>
-      <button mat-raised-button color="primary" (click)="saveSchedule()" class="hover:bg-blue-700 transition-colors">
-        <mat-icon>save</mat-icon>
-        Save
-      </button>
-    </div>
-
-
-    <!-- Table Section with Scrolling -->
-    <div class="flex-1 overflow-auto min-h-[300px] border rounded relative">
-      <!-- Table -->
-      <table mat-table [dataSource]="dataSource" matSort class="w-full">
-        <!-- Day Column -->
-        <ng-container matColumnDef="day">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ columnHeaders['day'] }}</th>
-          <td mat-cell *matCellDef="let row">{{ row.day }}</td>
-        </ng-container>
-
-        <!-- From Time Column -->
-        <ng-container matColumnDef="fromTime">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ columnHeaders['fromTime'] }}</th>
-          <td mat-cell *matCellDef="let row">{{ row.fromTime }}</td>
-        </ng-container>
-
-        <!-- End Time Column -->
-        <ng-container matColumnDef="endTime">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ columnHeaders['endTime'] }}</th>
-          <td mat-cell *matCellDef="let row">{{ row.endTime }}</td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-      </table>
-
-      <!-- No Data Message -->
-      @if (dataSource.data.length === 0) {
-      <div class="p-4 text-center text-gray-500">
-        No schedules found
+    <!-- Right side - Controls and Table -->
+    <div class="flex-1 flex flex-col gap-2 md:gap-4 mb-4">
+      <!-- Loading state -->
+      @if (isLoadingResults()) {
+      <div class="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
+        <mat-spinner></mat-spinner>
       </div>
       }
 
+      <!-- Error state -->
+      @if (errorMessage()) {
+      <div class="w-full p-4 text-red-500 bg-red-50 rounded">
+        {{ errorMessage() }}
+      </div>
+      }
 
+      <!-- Controls Section - Two inputs per row on md+ screens -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 mt-2">
+        <!-- Practitioner Select -->
+        <mat-form-field class="w-full">
+          <mat-label>Practitioner</mat-label>
+          <mat-select data-cy="cyPractitionerList" [formControl]="practitionerIdControl"
+            (selectionChange)="onPractitionerChange($event)">
+            @for (prac of practitioners(); track prac) {
+            <mat-option [value]="prac.practitionerId">
+              {{ prac.firstName + ' ' + prac.lastName }}
+            </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Date Picker -->
+        <mat-form-field class="w-full">
+          <mat-label>Work Day</mat-label>
+          <input matInput [matDatepicker]="picker" [formControl]="workDayControl">
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+      </div>
+
+      <!-- Action Buttons - Single Row -->
+      <div class="flex justify-end gap-2 mt-2 md:mt-4">
+        <button mat-raised-button color="accent" (click)="createSchedule()" class="hover:bg-green-700 transition-colors">
+          <mat-icon>add</mat-icon>
+          Create
+        </button>
+        <button mat-raised-button color="warn" (click)="onDeleteSchedule()" class="hover:bg-red-700 transition-colors">
+          <mat-icon>delete</mat-icon>
+          Delete
+        </button>
+        <button mat-raised-button color="primary" (click)="saveSchedule()" class="hover:bg-blue-700 transition-colors">
+          <mat-icon>save</mat-icon>
+          Save
+        </button>
+      </div>
+
+      <!-- Table Section -->
+      <div class="border rounded">
+        <table mat-table [dataSource]="dataSource" matSort class="w-full">
+          <!-- Day Column -->
+          <ng-container matColumnDef="day">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ columnHeaders['day'] }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.day }}</td>
+          </ng-container>
+
+          <!-- From Time Column -->
+          <ng-container matColumnDef="fromTime">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ columnHeaders['fromTime'] }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.fromTime }}</td>
+          </ng-container>
+
+          <!-- End Time Column -->
+          <ng-container matColumnDef="endTime">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ columnHeaders['endTime'] }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.endTime }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <!-- No Data Message -->
+        @if (dataSource.data.length === 0) {
+        <div class="p-4 text-center text-gray-500">
+          No schedules found
+        </div>
+        }
+      </div>
+
+      <!-- Paginator -->
+      <mat-paginator [pageSizeOptions]="[5,10]" aria-label="Select page of schedules"></mat-paginator>
     </div>
-
-    <!-- Paginator -->
-    <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of schedules"></mat-paginator>
-
-
-
   </div>
 </div>

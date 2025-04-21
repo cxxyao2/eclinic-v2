@@ -54,3 +54,11 @@ html {
 }
 
 // Custom Matrial Component Overrides
+:root {
+  @include mat.snack-bar-overrides(
+    (
+      container-color: var(--mat-app-primary-container),
+      supporting-text-color: var(--mat-app-on-primary-container),
+    )
+  );
+}

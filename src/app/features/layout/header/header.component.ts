@@ -48,17 +48,15 @@ export class HeaderComponent {
   // Protected signals and computed values
   protected readonly isDarkMode = signal(false);
   protected readonly user = toSignal(this.masterDataService.userSubject);
-  protected readonly currentLanguage = computed(() =>
-    LANGUAGE_MAP[this.transloco.getActiveLang()] || 'English'
-  );
+  protected readonly currentLanguage = signal('EN');
 
 
-
+    // Protected methods (used in template)
   protected toggleLanguage(lang: string): void {
     this.transloco.setActiveLang(lang);
+    this.currentLanguage.set(lang.toUpperCase());
   }
 
-  // Protected methods (used in template)
   protected toggleSidebar(): void {
     this.sidebarState.toggle();
   }

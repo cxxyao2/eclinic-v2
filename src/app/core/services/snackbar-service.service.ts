@@ -20,7 +20,7 @@ export class SnackbarService {
   }
 
   // Method to trigger a snackbar message
-  show(message: string, panelClass: string = 'default-snackbar') {
+  show(message: string, panelClass: string = 'success-snackbar') {
     this.snackbarSubject.next({ message, panelClass });
   }
 }

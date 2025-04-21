@@ -110,12 +110,9 @@ export class PractitionerScheduleComponent implements AfterViewInit {
 
 
 
-
-
   ngAfterViewInit() {
     this.initializePractitionerData();
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+
 
     // Reset to first page when sort changes
     this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
@@ -134,7 +131,7 @@ export class PractitionerScheduleComponent implements AfterViewInit {
         }
 
         // Format the date as YYYY-MM-DD
-        const formattedDate = formatDateToYyyyMmDdPlus(this.workDayControl.value);
+        const formattedDate = this.workDayControl.value.toISOString();
 
         return this.scheduleService.apiPractitionerSchedulesGet(
           this.practitionerIdControl.value,
@@ -169,6 +166,8 @@ export class PractitionerScheduleComponent implements AfterViewInit {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(result => {
       this.dataSource.data = result.data || [];
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
     });
   }
 
@@ -185,9 +184,14 @@ export class PractitionerScheduleComponent implements AfterViewInit {
 
   protected saveSchedule(): void {
     this.errorMessage.set('');
-    this.isLoadingResults.set(true);
 
     const newData = this.dataSource.data.filter((entity) => (entity.scheduleId ?? 0) === 0);
+
+    if (newData.length === 0 && this.deletedData.length === 0) {
+      this.snackbarService.show('No changes to save.');
+      return;
+    }
+
     if (newData.length > 0) {
       this.addScheduleBatch(newData);
     }
@@ -212,6 +216,8 @@ export class PractitionerScheduleComponent implements AfterViewInit {
         if (result !== undefined) {
           this.deletedData.push(...this.dataSource.data.filter((entity) => (entity.scheduleId ?? 0) > 0));
           this.dataSource.data = [];
+          this.dataSource.paginator = this.paginator;
+          this.dataSource.sort = this.sort;
         }
       });
   }
@@ -258,6 +264,12 @@ export class PractitionerScheduleComponent implements AfterViewInit {
   }
 
   createSchedule(): void {
+    // if data exists, return
+    if (this.dataSource.data.length > 0) {
+      this.snackbarService.show('Data already exists. Please delete existing data before creating new ones.');
+      return;
+    };
+
     const workDate = this.workDay$();
     const practitionerId = this.practitionerId$();
     if (!workDate || ((practitionerId ?? 0) === 0)) {
@@ -277,6 +289,8 @@ export class PractitionerScheduleComponent implements AfterViewInit {
       fromTime: formatDateToHHmm(schedule.startDateTime!),
       endTime: formatDateToHHmm(schedule.endDateTime!)
     }));
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
   }
 
   generatePractitionerScheduleSlots(

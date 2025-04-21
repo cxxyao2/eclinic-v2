@@ -3,11 +3,8 @@
         <!-- Left section -->
         <div class="flex items-center gap-2">
             <!-- Menu button only visible on mobile -->
-            <button mat-icon-button 
-                    (click)="toggleSidebar()" 
-                    class="block md:!hidden hover:bg-primary-dark" 
-                    matTooltip="Toggle Sidebar"
-                    aria-label="Toggle sidebar">
+            <button mat-icon-button (click)="toggleSidebar()" class="block md:!hidden hover:bg-primary-dark"
+                matTooltip="Toggle Sidebar" aria-label="Toggle sidebar">
                 <mat-icon>menu</mat-icon>
             </button>
             <span class="text-xl font-semibold">EClinic</span>
@@ -25,7 +22,7 @@
                 <mat-icon>{{ isDarkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
             </button>
 
-            <button mat-flat-button [matMenuTriggerFor]="beforeMenu">
+            <button mat-flat-button [matMenuTriggerFor]="beforeMenu" matTooltip="Toggle Language">
                 <mat-icon>language</mat-icon>
                 {{currentLanguage()}}
             </button>
@@ -38,9 +35,9 @@
 
 
             @if (user()) {
-            <button mat-flat-button (click)="logout()"
+            <button mat-flat-button (click)="logout()" matTooltip="Logout"
                 class="ml-2 flex items-center gap-2 bg-primary-dark hover:bg-primary-darker">
-                <span class="capitalize">{{ user()?.userName }}</span>
+                <span class="hidden md:block capitalize">{{ user()?.userName }}</span>
                 <mat-icon class="h-5 w-5">logout</mat-icon>
             </button>
             } @else {
