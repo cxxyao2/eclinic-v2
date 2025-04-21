@@ -130,10 +130,10 @@ export class PractitionerScheduleComponent implements AfterViewInit {
           return observableOf(null);
         }
 
-        // Format the date as YYYY-MM-DD
+        // Format the date string with timezone
         const formattedDate = this.workDayControl.value.toISOString();
 
-        return this.scheduleService.apiPractitionerSchedulesGet(
+        return this.scheduleService.apiPractitionerSchedulesByPractitionerDateGet(
           this.practitionerIdControl.value,
           formattedDate
         ).pipe(

@@ -14,6 +14,7 @@ import { MatIconModule } from '@angular/material/icon';
           [src]="avatarUrl" 
           [alt]="name" 
           class="mx-auto block h-16 w-16 rounded-full sm:mx-0 sm:shrink-0 object-cover"
+          loading="lazy"
         >
       </div>
       <div class="space-y-2 text-center sm:text-left flex-grow">

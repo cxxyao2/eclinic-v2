@@ -1,7 +1,7 @@
 <div class="flex flex-col  rounded-lg shadow-md">
     <!-- Image Container -->
     <div class="relative w-full max-w-[300px] h-[200px] overflow-hidden rounded-t-lg">
-        <img [src]="imagePath()" alt="Profile" class="w-full h-full object-cover" />
+        <img [src]="imagePath()" alt="Profile" class="w-full h-full object-cover" loading="lazy" />
     </div>
 
     <!-- Profile Information -->
@@ -10,7 +10,7 @@
         <div class="flex items-center space-x-2">
             <span class="font-semibold uppercase text-sm text-gray-600 dark:text-gray-400">Name:</span>
             <span class="text-base">
-                {{(profileInfo().firstName) + ' ' + (profileInfo().lastName)}}
+                {{(profileInfo().firstName)??'' + ' ' + (profileInfo().lastName??'') || ''}}
             </span>
         </div>
 
@@ -29,23 +29,18 @@
         }
 
         <!-- Email (if available) -->
-        @if (profileInfo().email) {
         <div class="flex items-center space-x-2">
             <span class="font-semibold uppercase text-sm text-gray-600 dark:text-gray-400">Email:</span>
-            <span 
-              class="text-base truncate block max-w-[200px]" 
-              [matTooltip]="profileInfo().email!"
-              matTooltipPosition="above"
-            >{{profileInfo().email}}</span>
+            <span class="text-base truncate block max-w-[200px]" [matTooltip]="profileInfo().email!"
+                matTooltipPosition="above">{{profileInfo().email || ''}}</span>
         </div>
-        }
+
 
         <!-- Phone Number (if available) -->
-        @if (profileInfo().phoneNumber) {
         <div class="flex items-center space-x-2">
             <span class="font-semibold uppercase text-sm text-gray-600 dark:text-gray-400">Phone:</span>
-            <span class="text-base">{{profileInfo().phoneNumber}}</span>
+            <span class="text-base">{{profileInfo().phoneNumber || ''}}</span>
         </div>
-        }
+
     </div>
 </div>

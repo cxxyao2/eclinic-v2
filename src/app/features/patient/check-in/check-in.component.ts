@@ -99,8 +99,8 @@ export class CheckInComponent implements AfterViewInit, OnInit {
   }
 
   private getAppointmentByDate(bookedDate: Date): void {
-    const formattedDate = formatDateToYyyyMmDdPlus(bookedDate);
-    this.scheduleService.apiPractitionerSchedulesGet(undefined, formattedDate)
+    const formattedDate = bookedDate.toISOString();
+    this.scheduleService.apiPractitionerSchedulesByDateGet(formattedDate)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: GetPractitionerScheduleDTOListServiceResponse) => {

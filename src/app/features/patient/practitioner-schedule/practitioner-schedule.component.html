@@ -10,7 +10,7 @@
     </div>
 
     <!-- Right side - Controls and Table -->
-    <div class="flex-1 flex flex-col gap-2 md:gap-4 mb-4">
+    <div class="flex-1 relative gap-2">
       <!-- Loading state -->
       @if (isLoadingResults()) {
       <div class="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
@@ -51,7 +51,8 @@
 
       <!-- Action Buttons - Single Row -->
       <div class="flex justify-end gap-2 mt-2 md:mt-4">
-        <button mat-raised-button color="accent" (click)="createSchedule()" class="hover:bg-green-700 transition-colors">
+        <button mat-raised-button color="accent" (click)="createSchedule()"
+          class="hover:bg-green-700 transition-colors">
           <mat-icon>add</mat-icon>
           Create
         </button>
@@ -99,7 +100,7 @@
       </div>
 
       <!-- Paginator -->
-      <mat-paginator [pageSizeOptions]="[5,10]" aria-label="Select page of schedules"></mat-paginator>
+      <mat-paginator [pageSizeOptions]="[5,10]" aria-label="Select page of schedules" class="p-2 md:p-1"></mat-paginator>
     </div>
   </div>
 </div>

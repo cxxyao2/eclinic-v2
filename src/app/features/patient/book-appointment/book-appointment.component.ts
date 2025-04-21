@@ -60,16 +60,17 @@ export class BookAppointmentComponent implements AfterViewInit {
         index: '#',
         practitionerName: 'Practitioner',
         startDateTime: 'From Time',
+        actions: 'Actions',
         endDateTime: 'End Time',
         patientName: 'Patient',
-        actions: 'Actions'
+
     };
 
     // Signals and State
-    protected readonly imagePath = signal<string>('assets/images/smiling-doctor.jpg');
+    protected readonly imagePath = signal<string>('assets/avatars/patient2-350px.jpg');
     protected readonly patients = signal<GetPatientDTO[]>([]);
     protected readonly selectedPatient = signal<UserProfile>({} as UserProfile);
-    protected isLoadingResults = false;
+    protected isLoadingResults = signal(false);
 
     // Form Controls
     protected readonly workDayControl = new FormControl<Date | null>(new Date());
@@ -80,7 +81,7 @@ export class BookAppointmentComponent implements AfterViewInit {
     protected readonly patientId$ = toSignal(this.patientIdControl.valueChanges, { initialValue: 0 });
 
     // Table Configuration
-    protected readonly displayedColumns: readonly string[] = ['index', 'practitionerName', 'startDateTime', 'endDateTime', 'patientName', 'actions'];
+    protected readonly displayedColumns: readonly string[] = ['index', 'practitionerName', 'startDateTime', 'actions','endDateTime', 'patientName'];
     protected readonly dataSource = new MatTableDataSource<GetPractitionerScheduleDTO>([]);
 
     // Private State
@@ -98,19 +99,16 @@ export class BookAppointmentComponent implements AfterViewInit {
 
     // Lifecycle Hooks
     public ngAfterViewInit(): void {
-        this.initializeComponent();
-    }
-
-    // Private Methods
-    private initializeComponent(): void {
         this.setupPatientSubscription();
         this.setupScheduleSubscription();
         this.initializeDataSource();
     }
 
     private setupPatientSubscription(): void {
+        this.isLoadingResults.set(true);
         this.masterDataService.patientsSubject.subscribe({
             next: (data) => this.patients.set(data),
+            complete: () => this.isLoadingResults.set(false)
         });
     }
 
@@ -118,10 +116,17 @@ export class BookAppointmentComponent implements AfterViewInit {
         merge(this.patientIdControl.valueChanges, this.workDayControl.valueChanges)
             .pipe(
                 startWith({}),
-                switchMap(() => this.fetchScheduleData()),
+                switchMap(() => {
+                    this.isLoadingResults.set(true);
+                    return this.fetchScheduleData();
+                }),
                 map(this.processScheduleResponse.bind(this))
             )
-            .subscribe(data => this.dataSource.data = data ?? []);
+            .subscribe(data => {
+                this.isLoadingResults.set(false);
+                this.dataSource.data = data ?? [];
+                this.initializeDataSource();
+            });
     }
 
     private fetchScheduleData() {
@@ -129,20 +134,20 @@ export class BookAppointmentComponent implements AfterViewInit {
         const patientId = this.patientIdControl.value;
 
         if (!workDate || ((patientId ?? 0) === 0)) {
-            this.isLoadingResults = false;
+            this.isLoadingResults.set(false);
             return observableOf(null);
         }
 
-        this.isLoadingResults = true;
+        this.isLoadingResults.set(true);
         // Format the date according to API requirements
-        const formattedDate = formatDateToYyyyMmDdPlus(workDate);
+        const formattedDate = workDate.toISOString();
 
-        return this.scheduleService.apiPractitionerSchedulesGet(undefined, formattedDate)
+        return this.scheduleService.apiPractitionerSchedulesByDateGet(formattedDate)
             .pipe(catchError(() => observableOf(null)));
     }
 
     private processScheduleResponse(response: any) {
-        this.isLoadingResults = false;
+        this.isLoadingResults.set(false);
         return response?.data ?? [];
     }
 
