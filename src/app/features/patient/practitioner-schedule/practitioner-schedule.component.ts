@@ -189,11 +189,11 @@ export class PractitionerScheduleComponent implements AfterViewInit {
 
     const newData = this.dataSource.data.filter((entity) => (entity.scheduleId ?? 0) === 0);
     if (newData.length > 0) {
-      this.addNewSchedules(newData);
+      this.addScheduleBatch(newData);
     }
 
     if (this.deletedData.length > 0) {
-      this.deleteScheduleArray(this.deletedData);
+      this.deleteScheduleBatch(this.deletedData);
     }
   }
 
@@ -226,56 +226,29 @@ export class PractitionerScheduleComponent implements AfterViewInit {
   }
 
 
-  private addOneSchedule(data: GetPractitionerScheduleDTO) {
-    const newEntity: AddPractitionerScheduleDTO = { ...data };
+  private deleteScheduleBatch(dataArray: GetPractitionerScheduleDTO[]) {
+    if (dataArray.length === 0) return;
 
-    return this.scheduleService.apiPractitionerSchedulesPost(newEntity).pipe(
-      catchError((error: HttpErrorResponse) => {
-        console.error('Error posting schedule:', error);
-        this.errorMessage.set(error.error?.message || 'Failed to add schedule');
-        return observableOf(null);
-      })
-    );
+    this.isLoadingResults.set(true);
+    const scheduleIds = dataArray.map(item => item.scheduleId!);
+
+    this.scheduleService.apiPractitionerSchedulesBatchDeletePost(scheduleIds)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.snackbarService.show('Schedules deleted successfully', 'success-snackbar');
+        },
+        error: (err: HttpErrorResponse) => {
+          this.errorMessage.set(err.error?.message || 'Failed to delete schedules');
+          console.error('Batch delete operation failed:', err);
+        },
+        complete: () => {
+          this.isLoadingResults.set(false);
+          this.resetDataState();
+        }
+      });
   }
 
-  private deleteScheduleArray(dataArray: GetPractitionerScheduleDTO[]) {
-    // todo. should not request so many times. transfer an array.
-
-    from(dataArray).pipe(
-      concatMap((item) => this.scheduleService.apiPractitionerSchedulesIdDelete(item.scheduleId!)),
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe({
-      error: (err: HttpErrorResponse) => {
-        this.errorMessage.set(err.error?.message || 'Failed to delete schedule');
-        console.error('Delete operation failed:', err);
-      },
-      complete: () => this.isLoadingResults.set(false)
-    });
-  }
-
-  private addNewSchedules(dataArray: GetPractitionerScheduleDTO[]) {
-    let recordCount = 0;
-
-
-    from(dataArray).pipe(
-      concatMap((item) => this.addOneSchedule(item)),
-      finalize(() => this.handleAddNewSchedulesCompletion(recordCount, dataArray.length)),
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe({
-      next: () => recordCount++,
-      error: (err) => console.error('Add operation failed:', err),
-      complete: () => this.isLoadingResults.set(false)
-    });
-  }
-
-  private handleAddNewSchedulesCompletion(recordCount: number, totalRecords: number): void {
-    if (recordCount === totalRecords) {
-      this.snackbarService.show('All items processed successfully!', 'success-snackbar');
-      this.resetDataState();
-    } else {
-      this.snackbarService.show('Some items failed to process.', 'error-snackbar');
-    }
-  }
 
   private resetDataState(): void {
     this.dataSource.data = [];
@@ -374,5 +347,32 @@ export class PractitionerScheduleComponent implements AfterViewInit {
     window.open(pdfUrl, '_blank')?.print();
   }
 
+  private addScheduleBatch(schedulesToAdd: AddPractitionerScheduleDTO[]) {
+    if (schedulesToAdd.length === 0) return;
+
+    this.isLoadingResults.set(true);
+
+    this.scheduleService.apiPractitionerSchedulesBatchAddPost(schedulesToAdd)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.snackbarService.show('Schedules added successfully', 'success-snackbar');
+            // Refresh data or update UI as needed
+          } else {
+            this.errorMessage.set(response.message || 'Failed to add schedules');
+          }
+        },
+        error: (err: HttpErrorResponse) => {
+          this.errorMessage.set(err.error?.message || 'Failed to add schedules');
+          console.error('Batch add operation failed:', err);
+        },
+        complete: () => {
+          this.isLoadingResults.set(false);
+          this.resetDataState();
+        }
+
+      });
+  }
 
 }
