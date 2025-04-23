@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, OnDestroy, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnDestroy, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { AuthService } from '@libs/api-client';
 import { CodeInputModule } from 'angular-code-input';
@@ -22,6 +23,7 @@ export class ActiveAccountComponent implements OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly redirectDelay = 2000; // 2 seconds delay
   private redirectTimeout?: number;
+  private destroyRef = inject(DestroyRef);
 
   /**
    * Handles the completion of code input
@@ -60,7 +62,9 @@ export class ActiveAccountComponent implements OnDestroy {
   private confirmAccount(token: string): void {
     this.authService.apiAuthActivatePost({
       code: token
-    }).subscribe({
+    }).
+    pipe(takeUntilDestroyed(this.destroyRef)).
+    subscribe({
       next: () => {
         this.message.set('Your account has been successfully activated. \nNow you can proceed to login');
         this.submitted.set(true);

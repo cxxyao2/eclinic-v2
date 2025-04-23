@@ -1,25 +1,28 @@
 import { CommonModule } from '@angular/common';
-import { 
-  AfterViewInit, 
-  ChangeDetectionStrategy, 
-  Component, 
-  inject, 
-  OnDestroy, 
-  OnInit, 
-  signal 
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatTabsModule } from '@angular/material/tabs';
-import { 
-  GetVisitRecordDTO, 
-  GetVisitRecordDTOListServiceResponse, 
-  VisitRecordsService 
+import {
+  GetVisitRecordDTO,
+  GetVisitRecordDTOListServiceResponse,
+  VisitRecordsService
 } from '@libs/api-client';
+import { formatDateToYyyyMmDdPlus } from '@shared/utils/date-helpers';
 
 @Component({
   selector: 'app-waiting-list',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     MatTabsModule
   ],
   templateUrl: './waiting-list.component.html',
@@ -35,6 +38,7 @@ export class WaitingListComponent implements AfterViewInit, OnInit, OnDestroy {
   // Private properties
   private readonly visitService = inject(VisitRecordsService);
   private intervalId?: number;
+  private readonly destroyRef = inject(DestroyRef);
 
   public ngAfterViewInit(): void {
     this.getWaitingListByDate(this.today);
@@ -53,15 +57,18 @@ export class WaitingListComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   private getWaitingListByDate(bookedDate: Date): void {
-    this.visitService.apiVisitRecordsWaitingListGet(bookedDate).subscribe({
-      next: (res: GetVisitRecordDTOListServiceResponse) => {
-        const visits = res.data ?? [];
-        this.patients.set(visits);
-      },
-      error: () => { 
-        // Handle error if needed
-      }
-    });
+    const formatedDate = new Date(formatDateToYyyyMmDdPlus(bookedDate, '00:00:00')).toISOString();
+    this.visitService.apiVisitRecordsWaitingListGet(formatedDate)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res: GetVisitRecordDTOListServiceResponse) => {
+          const visits = res.data ?? [];
+          this.patients.set(visits);
+        },
+        error: () => {
+          // Handle error if needed
+        }
+      });
   }
 
   private startCarousel(): void {

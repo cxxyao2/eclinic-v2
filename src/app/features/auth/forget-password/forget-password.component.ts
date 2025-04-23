@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { AuthService } from '@libs/api-client';
 import { signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-forget-password',
@@ -32,6 +33,7 @@ export class ForgetPasswordComponent {
   // Private dependencies
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly authService = inject(AuthService);
+  private destroyRef = inject(DestroyRef);
 
   /**
    * Handles form submission
@@ -55,15 +57,17 @@ export class ForgetPasswordComponent {
    * Sends password reset request to the backend
    */
   private requestPasswordReset(email: string): void {
-    this.authService.apiAuthRequestPasswordResetPost({ email }).subscribe({
-      next: () => {
-        this.message.set('Password reset link has been sent to your email');
-        this.isError.set(false);
-      },
-      error: (error) => {
-        this.message.set(error.error?.message || 'Failed to send reset link. Please try again.');
-        this.isError.set(true);
-      }
-    });
+    this.authService.apiAuthRequestPasswordResetPost({ email })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.message.set('Password reset link has been sent to your email');
+          this.isError.set(false);
+        },
+        error: (error) => {
+          this.message.set(error.error?.message || 'Failed to send reset link. Please try again.');
+          this.isError.set(true);
+        }
+      });
   }
 }

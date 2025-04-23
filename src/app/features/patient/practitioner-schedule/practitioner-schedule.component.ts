@@ -115,7 +115,9 @@ export class PractitionerScheduleComponent implements AfterViewInit {
 
 
     // Reset to first page when sort changes
-    this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
+    this.sort.sortChange
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe(() => (this.paginator.pageIndex = 0));
 
     merge(
       this.practitionerIdControl.valueChanges,

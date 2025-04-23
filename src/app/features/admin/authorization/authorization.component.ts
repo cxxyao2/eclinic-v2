@@ -27,10 +27,11 @@ export class AuthorizationComponent {
   destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
-    this.userService.apiUsersGet().subscribe(data => {
-      this.dataSource.data = data;
-      this.originalData = JSON.parse(JSON.stringify(data)); 
-    });
+    this.userService.apiUsersGet().
+      pipe(takeUntilDestroyed(this.destroyRef)).subscribe(data => {
+        this.dataSource.data = data;
+        this.originalData = JSON.parse(JSON.stringify(data));
+      });
   }
 
   save(): void {
@@ -41,12 +42,12 @@ export class AuthorizationComponent {
 
     from(updatedData)
       .pipe(
-        takeUntilDestroyed(this.destroyRef),
         concatMap((user) =>
           this.userService.apiUsersPut(user)),
         finalize(() => {
           this.router.navigate(['/dashboard']);
-        })
+        }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (response) => {

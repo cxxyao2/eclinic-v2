@@ -28,6 +28,8 @@ import { DialogSimpleDialog } from '@shared/components/dialog/dialog-simple-dial
 import { formatDateToYyyyMmDdPlus } from '@shared/utils/date-helpers';
 import { ConsultationService } from '../services/consultation.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ConsulationFormMedicComponent } from "../consulation-form-medic/consulation-form-medic.component";
+import { ConsulationSignatureComponent } from "../consulation-signature/consulation-signature.component";
 
 @Component({
   selector: 'app-consultation-form',
@@ -48,8 +50,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatSortModule,
     MatPaginatorModule,
     MatAutocompleteModule,
-    MatProgressSpinnerModule
-  ],
+    MatProgressSpinnerModule,
+    ConsulationFormMedicComponent,
+    ConsulationSignatureComponent
+],
   templateUrl: './consultation-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })

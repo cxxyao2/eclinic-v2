@@ -1,8 +1,7 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { catchError, tap, throwError } from 'rxjs';
 
 // Material Imports
 import { MatCardModule } from '@angular/material/card';
@@ -12,8 +11,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
 // Services
-import { AuthService, User } from '@libs/api-client';
+import { AuthService } from '@libs/api-client';
 import { MasterDataService } from '@core/services/master-data.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 
 @Component({
@@ -49,6 +49,7 @@ export class LoginComponent {
   readonly errorMessage = signal<string | null>(null);
   readonly returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
   hidePassword = true;
+  private readonly destroyRef = inject(DestroyRef);
 
   // Form submission handler
   onSubmit(): void {
@@ -59,10 +60,12 @@ export class LoginComponent {
 
   // Private methods
   private handleLogin(loginData: { email: string; password: string }): void {
-    this.authService.apiAuthLoginPost(loginData).subscribe({
-      next: (response) => this.handleLoginSuccess(response, loginData.email),
-      error: (error: HttpErrorResponse) => this.handleLoginError(error)
-    });
+    this.authService.apiAuthLoginPost(loginData)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => this.handleLoginSuccess(response, loginData.email),
+        error: (error: HttpErrorResponse) => this.handleLoginError(error)
+      });
   }
 
   private handleLoginSuccess(response: any, email: string): void {

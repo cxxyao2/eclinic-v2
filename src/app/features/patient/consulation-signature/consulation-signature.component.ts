@@ -148,7 +148,9 @@ export class ConsulationSignatureComponent implements AfterViewInit, OnDestroy {
       visitRecordId: visitId ?? 0
     };
 
-    this.signService.apiSignaturesPost(signDTO).subscribe({
+    this.signService.apiSignaturesPost(signDTO)
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
       next: (res: StringServiceResponse) => {
         this.consultationService.setSignaturePath(res.data ?? '');
         this.snackbarService.show('Signature uploaded successfully');

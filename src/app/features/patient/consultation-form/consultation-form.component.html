@@ -8,7 +8,7 @@
     <div class="flex-1 overflow-auto">
         <form [formGroup]="diagnosisForm" class="space-y-6">
             <!-- Error state -->
-            if (errorMessage()) {
+            @if (errorMessage()) {
             <div class="w-full p-4 text-red-500 bg-red-50 rounded mb-4">
                 {{ errorMessage() }}
             </div>
@@ -17,16 +17,16 @@
             <div class="flex items-center justify-between">
                 <div class="flex-1">
                     <!-- Loading state -->
-                    @if (scheduledVisits.loading) {
+                    @if (isProcessing()) {
                     <div class="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
                         <mat-spinner></mat-spinner>
                     </div>
                     }
 
                     <!-- Error state -->
-                    @if (scheduledVisits.error) {
+                    @if (scheduledVisits.error()) {
                     <div class="w-full p-4 text-red-500 bg-red-50 rounded mb-4">
-                        {{ scheduledVisits.error.message || 'Failed to fetch visit records' }}
+                        {{ scheduledVisits.error() || 'Failed to fetch visit records' }}
                         <button mat-button color="primary" (click)="refreshVisits()" type="button">
                             <mat-icon>refresh</mat-icon> Retry
                         </button>
@@ -34,18 +34,18 @@
                     }
 
                     <!-- Data display -->
-                    @if (scheduledVisits() && scheduledVisits().length > 0) {
+                    @if (scheduledVisits.value() && (scheduledVisits.value()??[]).length > 0 ) {
                     <mat-form-field class="w-full">
                         <mat-label>Patient & Booked Time</mat-label>
                         <mat-select [formControl]="visitControl">
-                            @for (prac of scheduledVisits(); track prac) {
+                            @for (prac of scheduledVisits.value(); track prac) {
                             <mat-option [value]="prac">
                                 {{ prac.patientName + " " + (prac.visitDate| date:'HH:mm') }}
                             </mat-option>
                             }
                         </mat-select>
                     </mat-form-field>
-                    } @else if (!scheduledVisits.loading && !scheduledVisits.error) {
+                    } @else if (!scheduledVisits.isLoading() && !scheduledVisits.error()) {
                     <div class="empty-state p-4 text-center">
                         <p>No scheduled visits found for today.</p>
                     </div>
@@ -96,14 +96,13 @@
                     <h4 class="text-lg font-medium mt-8 mb-4">Prescriptions</h4>
                     <app-consulation-form-medic></app-consulation-form-medic>
                     <h4 class="text-lg font-medium mt-8 mb-4">Signature</h4>
-                    <div>
-                        <app-consulation-signature></app-consulation-signature>
-                    </div>
-
+                    <app-consulation-signature></app-consulation-signature>
                 </div>
 
-                <!-- Patient History Section TODO -->
-                <div class="hidden">
+                <!-- Patient History Section -->
+                <div class="rounded-lg shadow-md p-6">
+                    <h4 class="text-lg font-medium mb-4">Patient History</h4>
+                    <!-- Add patient history content here -->
                 </div>
             </div>
         </form>

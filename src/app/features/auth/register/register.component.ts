@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -52,8 +53,9 @@ export class RegisterComponent {
     confirmPassword: this.fb.control('', [Validators.required])
   }, { validators: (g: AbstractControl) => this.passwordMatchValidator(g as FormGroup) });
 
-  protected  errorMessage = signal<string | null>(null);
+  protected errorMessage = signal<string | null>(null);
   public hidePassword = true;
+  private readonly destroyRef = inject(DestroyRef)
 
   // Public methods
   public onSubmit(): void {
@@ -65,16 +67,18 @@ export class RegisterComponent {
       };
 
       this.errorMessage.set(null);
-      this.authService.apiAuthRegisterPost(registerData).subscribe({
-        next: () => {
-          this.router.navigate(['/login'], {
-            queryParams: { registered: 'true' }
-          });
-        },
-        error: (error:HttpErrorResponse) => {
-          this.errorMessage.set(  error.error?.message || error.message || 'Registration failed. Please try again.');
-        }
-      });
+      this.authService.apiAuthRegisterPost(registerData)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.router.navigate(['/login'], {
+              queryParams: { registered: 'true' }
+            });
+          },
+          error: (error: HttpErrorResponse) => {
+            this.errorMessage.set(error.error?.message || error.message || 'Registration failed. Please try again.');
+          }
+        });
     }
   }
 

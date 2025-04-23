@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { DestroyRef, inject, Injectable } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject } from 'rxjs';
 
@@ -7,16 +8,19 @@ import { Subject } from 'rxjs';
 })
 export class SnackbarService {
   private snackbarSubject = new Subject<{ message: string; panelClass: string }>();
+  private destroyRef = inject(DestroyRef);
 
   constructor(private snackBar: MatSnackBar) {
-    this.snackbarSubject.subscribe(({ message, panelClass }) => {
-      this.snackBar.open(message, 'Close', {
-        duration: 3000, // Duration in milliseconds
-        panelClass: [panelClass], // Custom styling
-        horizontalPosition: 'end', 
-        verticalPosition: 'top', 
+    this.snackbarSubject
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ message, panelClass }) => {
+        this.snackBar.open(message, 'Close', {
+          duration: 3000, // Duration in milliseconds
+          panelClass: [panelClass], // Custom styling
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+        });
       });
-    });
   }
 
   // Method to trigger a snackbar message

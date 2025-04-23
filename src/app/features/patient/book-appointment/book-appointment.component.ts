@@ -1,8 +1,8 @@
 // Angular Core Imports
-import { AfterViewInit, ChangeDetectionStrategy, Component, ViewChild, inject, signal } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, ViewChild, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { catchError, concatMap, finalize, from, map, merge, of as observableOf, startWith, switchMap, tap } from 'rxjs';
 
 
@@ -96,6 +96,7 @@ export class BookAppointmentComponent implements AfterViewInit {
     private readonly masterDataService = inject(MasterDataService);
     private readonly scheduleService = inject(PractitionerSchedulesService);
     private readonly snackbarService = inject(SnackbarService);
+    private readonly destroyRef = inject(DestroyRef);
 
     // Lifecycle Hooks
     public ngAfterViewInit(): void {
@@ -106,7 +107,9 @@ export class BookAppointmentComponent implements AfterViewInit {
 
     private setupPatientSubscription(): void {
         this.isLoadingResults.set(true);
-        this.masterDataService.patientsSubject.subscribe({
+        this.masterDataService.patientsSubject
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
             next: (data) => this.patients.set(data),
             complete: () => this.isLoadingResults.set(false)
         });
@@ -120,7 +123,8 @@ export class BookAppointmentComponent implements AfterViewInit {
                     this.isLoadingResults.set(true);
                     return this.fetchScheduleData();
                 }),
-                map(this.processScheduleResponse.bind(this))
+                map(this.processScheduleResponse.bind(this)),
+                takeUntilDestroyed(this.destroyRef)
             )
             .subscribe(data => {
                 this.isLoadingResults.set(false);
@@ -179,7 +183,8 @@ export class BookAppointmentComponent implements AfterViewInit {
                     })
                 )
             ),
-            finalize(() => this.handleUpdateCompletion(successCount, errorCount))
+            finalize(() => this.handleUpdateCompletion(successCount, errorCount)),
+            takeUntilDestroyed(this.destroyRef)
         ).subscribe();
     }
 

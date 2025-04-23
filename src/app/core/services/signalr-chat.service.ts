@@ -1,8 +1,9 @@
-import { Injectable, Inject, Optional, inject } from '@angular/core';
+import { Injectable, Inject, Optional, inject, DestroyRef } from '@angular/core';
 import { HubConnectionBuilder, HubConnection } from '@microsoft/signalr';
 import { Observable, Subject, BehaviorSubject, map } from 'rxjs';
 import { BASE_PATH } from '@libs/api-client/variables';
 import { ChatMessageDTO, ChatRoomDTO, ChatRoomDTOListServiceResponse, ChatService, CreateChatRoomDTO } from '@libs/api-client';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,7 @@ export class SignalRChatService {
 
   public errors$ = this.errorSubject.asObservable();
   public messages$ = this.messagesSubject.asObservable();
+  private destroyRef = inject(DestroyRef);
 
   constructor(@Optional() @Inject(BASE_PATH) private basePath: string) {
     this.basePath = basePath || '';
@@ -103,7 +105,8 @@ export class SignalRChatService {
     try {
       this.apiChatService.apiChatRoomsRoomIdMessagesGet(roomId).pipe(
         map(response => response?.data ?? []),
-        map(messages => messages.reverse())
+        map(messages => messages.reverse()),
+        takeUntilDestroyed(this.destroyRef)
       ).subscribe({
         next: (messages) => this.messagesSubject.next(messages),
         error: (err) => {

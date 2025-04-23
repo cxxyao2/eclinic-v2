@@ -48,13 +48,13 @@ export class ConsultationService {
     this.errorMessage.set('');
 
     this.visitService.apiVisitRecordsPut(newVisit).pipe(
-      takeUntilDestroyed(this.destroyRef),
       map(response => response.data || null),
       catchError(error => {
         console.error('Error starting consultation', error);
         this.isLoading.set(false);
         return of(null);
-      })
+      }),
+      takeUntilDestroyed(this.destroyRef),
     ).subscribe({
       next: (data: GetVisitRecordDTO | null) => {
         if (data) {
@@ -110,13 +110,13 @@ export class ConsultationService {
     // Execute all operations and handle results together
     forkJoin([visitSave$, prescriptionSave$, inpatientSave$])
       .pipe(
-        takeUntilDestroyed(this.destroyRef),
         catchError(error => {
           console.error('Error saving consultation data', error);
           this.errorMessage.set(error.error?.message || 'Failed to save consultation data');
-
+          
           return of([null, null, null]);
-        })
+        }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: ([_, prescriptionResult, inpatientResult]) => {
