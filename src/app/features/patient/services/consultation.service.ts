@@ -48,6 +48,7 @@ export class ConsultationService {
     this.errorMessage.set('');
 
     this.visitService.apiVisitRecordsPut(newVisit).pipe(
+      takeUntilDestroyed(this.destroyRef),
       map(response => response.data || null),
       catchError(error => {
         console.error('Error starting consultation', error);
@@ -155,21 +156,7 @@ export class ConsultationService {
     this.prescriptions.set([]);
   }
 
-  public savePrescriptions() {
-    const visit = this.currentVisit.value;
-    if (!visit || !visit.visitId || this.prescriptions().length === 0) {
-      return;
-    }
 
-    const prescriptionRequests: Array<AddPrescriptionDTO> = this.prescriptions().map(medication => ({
-      visitRecordId: visit.visitId,
-      medicationId: medication.medicationId,
-      dosage: medication.dosage || '',
-      instructions: medication.dosage || ''
-    }));
-
-    this.prescriptionService.apiPrescriptionsBatchAddPost(prescriptionRequests).subscribe();
-  }
 
   // Signature methods
   public setSignaturePath(path: string): void {
