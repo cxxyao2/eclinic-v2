@@ -1,41 +1,41 @@
-import { 
-  ChangeDetectionStrategy, 
-  ViewChild, 
-  ElementRef, 
-  Component, 
-  inject, 
-  AfterViewInit, 
-  input, 
-  Output, 
-  EventEmitter 
+import {
+  ChangeDetectionStrategy,
+  ViewChild,
+  ElementRef,
+  Component,
+  inject,
+  AfterViewInit,
+  OnDestroy,
+  DestroyRef
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SignatureDTO, SignaturesService } from '@libs/api-client';
+import { SignatureDTO, SignaturesService, StringServiceResponse } from '@libs/api-client';
 import { MatButtonModule } from '@angular/material/button';
-import { DialogSimpleDialog } from '../dialog/dialog-simple-dialog';
+import { DialogSimpleDialog } from '../../../shared/components/dialog/dialog-simple-dialog';
 import { MatDialog } from '@angular/material/dialog';
 import { SnackbarService } from '@services/snackbar-service.service';
+import { ConsultationService } from '../services/consultation.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import {  takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-    selector: 'app-canvas',
-    standalone: true,
-    imports: [CommonModule, MatButtonModule],
-    templateUrl: './canvas.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-consulation-signature',
+  standalone: true,
+  imports: [CommonModule, MatButtonModule],
+  templateUrl: './consulation-signature.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CanvasComponent implements AfterViewInit {
+export class ConsulationSignatureComponent implements AfterViewInit, OnDestroy {
   // ViewChild
-  @ViewChild('canvasElement', { static: true }) 
+  @ViewChild('canvasElement', { static: true })
   private readonly canvasElement!: ElementRef<HTMLCanvasElement>;
-  
-  // Inputs/Outputs
-  @Output() private readonly signSaved = new EventEmitter<string>();
-  public readonly visitId = input.required<number>();
 
   // Injected services
   private readonly signService = inject(SignaturesService);
   private readonly snackbarService = inject(SnackbarService);
+  private readonly consultationService = inject(ConsultationService);
   private readonly dialog = inject(MatDialog);
+  private readonly destroyRef = inject(DestroyRef);
 
   // Private properties
   private canvas!: HTMLCanvasElement;
@@ -45,9 +45,24 @@ export class CanvasComponent implements AfterViewInit {
   // Lifecycle hooks
   public ngAfterViewInit(): void {
     this.initializeCanvas();
+    this.subscribeToVisitChanges();
+  }
+
+  public ngOnDestroy(): void {
+    // No need to manually unsubscribe thanks to takeUntilDestroyed
   }
 
   // Private methods
+  private subscribeToVisitChanges(): void {
+    this.consultationService.currentVisit
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(visit => {
+        if (visit === null) {
+          this.clearCanvas();
+        }
+      });
+  }
+
   private initializeCanvas(): void {
     this.canvas = this.canvasElement.nativeElement;
     this.ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D;
@@ -63,15 +78,15 @@ export class CanvasComponent implements AfterViewInit {
   private getPosition(event: MouseEvent | TouchEvent): { x: number, y: number } {
     const rect = this.canvas.getBoundingClientRect();
     if (event instanceof MouseEvent) {
-      return { 
-        x: event.clientX - rect.left, 
-        y: event.clientY - rect.top 
+      return {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top
       };
     } else {
       const touch = event.touches[0];
-      return { 
-        x: touch.clientX - rect.left, 
-        y: touch.clientY - rect.top 
+      return {
+        x: touch.clientX - rect.left,
+        y: touch.clientY - rect.top
       };
     }
   }
@@ -117,27 +132,32 @@ export class CanvasComponent implements AfterViewInit {
 
   private showBlankCanvasDialog(): void {
     this.dialog.open(DialogSimpleDialog, {
-      data: { 
-        title: 'Notification', 
-        content: 'Please sign your name on the touchpad before saving the prescription.', 
-        isCancelButtonVisible: false 
+      data: {
+        title: 'Notification',
+        content: 'Please sign your name on the touchpad before saving the prescription.',
+        isCancelButtonVisible: false
       },
     });
   }
 
   private saveSignature(): void {
     const dataUrl = this.canvas.toDataURL('image/png');
+    const visitId = this.consultationService.currentVisit.value?.visitId;
     const signDTO: SignatureDTO = {
       image: dataUrl,
-      visitRecordId: this.visitId()
+      visitRecordId: visitId ?? 0
     };
 
     this.signService.apiSignaturesPost(signDTO).subscribe({
-      next: (res) => {
-        this.signSaved.emit(res.data ?? "");
+      next: (res: StringServiceResponse) => {
+        this.consultationService.setSignaturePath(res.data ?? '');
         this.snackbarService.show('Signature uploaded successfully');
       },
-      error: (err) => console.error('Error uploading signature', err)
+      error: (err: HttpErrorResponse) => {
+        this.snackbarService.show('Failed to upload signature', 'error-snackbar');
+        console.error('Failed to upload signature', err);
+      }
+
     });
   }
 }

@@ -55,6 +55,7 @@ export * from './getPrescriptionDTOServiceResponse';
 export * from './getVisitRecordDTO';
 export * from './getVisitRecordDTOListServiceResponse';
 export * from './getVisitRecordDTOServiceResponse';
+export * from './int32ServiceResponse';
 export * from './loginResponseDto';
 export * from './practitioner';
 export * from './problemDetails';

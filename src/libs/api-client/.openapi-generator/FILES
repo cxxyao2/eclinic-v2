@@ -84,6 +84,7 @@ model/getPrescriptionDTOServiceResponse.ts
 model/getVisitRecordDTO.ts
 model/getVisitRecordDTOListServiceResponse.ts
 model/getVisitRecordDTOServiceResponse.ts
+model/int32ServiceResponse.ts
 model/loginResponseDto.ts
 model/models.ts
 model/practitioner.ts

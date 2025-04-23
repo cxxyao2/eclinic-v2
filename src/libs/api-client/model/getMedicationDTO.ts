@@ -15,6 +15,6 @@ export interface GetMedicationDTO {
     dosage?: string | null;
     route?: string | null;
     frequency?: string | null;
-    sIdeEffects?: string | null;
+    sideEffects?: string | null;
 }
 

@@ -1,15 +1,15 @@
-import { 
-  AfterViewInit, 
-  ChangeDetectionStrategy, 
-  Component, 
-  DestroyRef, 
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
   computed,
-  inject, 
-  OnInit, 
-  signal, 
-  ViewChild 
+  inject,
+  OnInit,
+  signal,
+  ViewChild,
+  effect,
+  DestroyRef
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,26 +18,28 @@ import { MatInputModule } from '@angular/material/input';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { GetMedicationDTO, MedicationsService } from '@libs/api-client';
+import { GetMedicationDTO } from '@libs/api-client';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { ConsultationService } from '../services/consultation.service';
+import { MasterDataService } from '@core/services/master-data.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-    selector: 'app-consulation-form-medic',
-    standalone: true,
-    imports: [
-        FormsModule,
-        ReactiveFormsModule,
-        MatButtonModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatTableModule,
-        MatSortModule,
-        MatPaginatorModule,
-        MatAutocompleteModule
-    ],
-    templateUrl: './consulation-form-medic.component.html',
-    styleUrl: './consulation-form-medic.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-consulation-form-medic',
+  standalone: true,
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatTableModule,
+    MatSortModule,
+    MatPaginatorModule,
+    MatAutocompleteModule
+  ],
+  templateUrl: './consulation-form-medic.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ConsulationFormMedicComponent implements OnInit, AfterViewInit {
   // ViewChild decorators
@@ -49,8 +51,13 @@ export class ConsulationFormMedicComponent implements OnInit, AfterViewInit {
   protected readonly dataSource = new MatTableDataSource<GetMedicationDTO>([]);
   protected readonly medicationControl = new FormControl<string | GetMedicationDTO>('');
 
+  // Private properties
+  private readonly consultationService = inject(ConsultationService);
+  private readonly masterService = inject(MasterDataService);
+  private readonly destroyRef = inject(DestroyRef);
+
   // Signals
-  private readonly allMedications = signal<GetMedicationDTO[]>([]);
+  private readonly allMedications = this.masterService.medicationsSubject;
   private readonly selectedMedication = signal<GetMedicationDTO>({});
   private readonly searchTerm = toSignal(this.medicationControl.valueChanges, { initialValue: '' });
 
@@ -58,44 +65,52 @@ export class ConsulationFormMedicComponent implements OnInit, AfterViewInit {
   protected readonly filterMedications = computed(() => {
     const term = this.searchTerm();
     const name = typeof term === 'string' ? term : term?.name;
-    
+
     if (!name) {
-      return this.allMedications();
+      return this.allMedications.value;
     }
 
     const filterValue = name.toLowerCase();
-    return this.allMedications().filter(option => 
+    return this.allMedications.value.filter(option =>
       option.name?.toLowerCase().includes(filterValue)
     );
   });
 
-  // Private properties
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly medicationService = inject(MedicationsService);
-
   ngOnInit(): void {
-    this.loadMedications();
+    // Sync the dataSource with the prescriptions from the service
+    effect(() => {
+      const prescriptions = this.consultationService.prescriptions();
+      this.dataSource.data = [...prescriptions];
+    });
+
+    // Subscribe to currentVisit changes
+    this.subscribeToVisitChanges();
   }
 
   ngAfterViewInit(): void {
     this.initializeTableControls();
   }
 
+  // Private methods
+  private subscribeToVisitChanges(): void {
+    this.consultationService.currentVisit
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(visit => {
+        if (visit === null) {
+          this.dataSource.data = [];
+          this.initializeTableControls();
+        }
+      });
+  }
+
   // Public methods
   protected onMedicationSelected(event: { option: { value: GetMedicationDTO } }): void {
     const selectedMed = event.option.value;
     this.selectedMedication.set(selectedMed);
-    this.addMedicationToTable(this.selectedMedication());
+    this.addMedicationToTable(selectedMed);
+    this.medicationControl.setValue(''); // Clear the input after selection
   }
 
-  protected applyFilterTable(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.dataSource.filter = input.value.trim().toLowerCase();
-    
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
-  }
 
   protected displayFn(med: GetMedicationDTO): string {
     return med?.name ?? '';
@@ -105,29 +120,8 @@ export class ConsulationFormMedicComponent implements OnInit, AfterViewInit {
     const data = [...this.dataSource.data];
     data.splice(index, 1);
     this.dataSource.data = data;
-  }
-
-  // Public API methods
-  public getMedications(): GetMedicationDTO[] {
-    return this.dataSource.data;
-  }
-
-  public resetMedication(): void {
-    this.dataSource.data = [];
-  }
-
-  // Private methods
-  private loadMedications(): void {
-    this.medicationService.apiMedicationsGet()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res) => {
-          if (res?.data) {
-            this.allMedications.set(res.data);
-          }
-        },
-        error: (err) => console.error('Failed to load medications:', err)
-      });
+    // Sync with service
+    this.consultationService.removePrescription(index);
   }
 
   private initializeTableControls(): void {
@@ -137,6 +131,8 @@ export class ConsulationFormMedicComponent implements OnInit, AfterViewInit {
 
   private addMedicationToTable(medication: GetMedicationDTO): void {
     this.dataSource.data = [...this.dataSource.data, { ...medication }];
+    // Sync with service
+    this.consultationService.addPrescription({ ...medication });
   }
 }
 

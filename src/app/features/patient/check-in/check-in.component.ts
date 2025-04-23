@@ -7,7 +7,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSort, MatSortModule } from '@angular/material/sort';
@@ -51,11 +51,13 @@ import { formatDateToYyyyMmDdPlus } from '@shared/utils/date-helpers';
     CheckInWaitingListComponent
   ],
   templateUrl: './check-in.component.html',
+  styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CheckInComponent implements AfterViewInit, OnInit {
   // ViewChild
   @ViewChild(MatSort) private readonly sort!: MatSort;
+  @ViewChild(MatPaginator) private readonly paginator!: MatPaginator;
 
   // Injected Services
   private readonly masterService = inject(MasterDataService);
@@ -64,12 +66,15 @@ export class CheckInComponent implements AfterViewInit, OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   // Public Properties
-  public readonly displayedColumns: readonly string[] = ['practitionerName', 'startDateTime', 'endDateTime', 'action'];
-  public readonly today = new Date();
+  public readonly displayedColumns: readonly string[] = ['practitionerName', 'startDateTime', 'action', 'endDateTime'];
+  public readonly today = new Date(formatDateToYyyyMmDdPlus(new Date(), '00:00:00'));
   public readonly patientIdControl = new FormControl<number | null>(0);
   public readonly dataSource = new MatTableDataSource<GetPractitionerScheduleDTO>();
   public readonly waitingList = signal<GetVisitRecordDTO[]>([]);
   public readonly patients = signal<GetPatientDTO[]>([]);
+  public readonly isLoading = signal<boolean>(false);
+  public readonly errorMessage = signal<string>('');
+
 
   // Private Properties
   private todayAllSchedules: GetPractitionerScheduleDTO[] = [];
@@ -77,6 +82,13 @@ export class CheckInComponent implements AfterViewInit, OnInit {
   public ngOnInit(): void {
     this.getAppointmentByDate(this.today);
     this.getWaitingListByDate(this.today);
+
+    // Subscribe to patient ID control changes
+    this.patientIdControl.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(patientId => {
+        this.filterAppointmentsByPatient(patientId ?? 0);
+      });
   }
 
   public ngAfterViewInit(): void {
@@ -84,22 +96,32 @@ export class CheckInComponent implements AfterViewInit, OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(data => this.patients.set(data));
 
+    this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
   }
 
-  public getPatientAppointment(): void {
-    const patientId = this.patientIdControl.getRawValue() ?? 0;
-    const filteredData = this.todayAllSchedules.filter(ele => ele.patientId === patientId);
-    this.dataSource.data = filteredData;
+  private filterAppointmentsByPatient(patientId: number): void {
+    if (patientId === 0) {
+      // If no patient is selected, show all appointments
+      this.dataSource.data = this.todayAllSchedules;
+    } else {
+      // Filter appointments by patient ID
+      const filteredData = this.todayAllSchedules.filter(schedule => schedule.patientId === patientId);
+      this.dataSource.data = filteredData;
+    }
+    this.dataSource.sort = this.sort;
+    this.dataSource.paginator = this.paginator;
   }
 
   public addWaitingList(schedule: GetPractitionerScheduleDTO): void {
+    this.errorMessage.set('');
     this.updateSchedule(schedule);
     this.addToWaitingList(schedule);
   }
 
   private getAppointmentByDate(bookedDate: Date): void {
     const formattedDate = bookedDate.toISOString();
+    this.isLoading.set(true);
     this.scheduleService.apiPractitionerSchedulesByDateGet(formattedDate)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -107,20 +129,22 @@ export class CheckInComponent implements AfterViewInit, OnInit {
           const result = res.data ?? [];
           this.todayAllSchedules = result.filter(res => res.reasonForVisit !== 'done');
         },
-        error: () => { }
+        error: () => { },
+        complete: () => this.isLoading.set(false)
       });
   }
 
   private getWaitingListByDate(bookedDate: Date): void {
-    const formatedDate = formatDateToYyyyMmDdPlus(bookedDate);
-
+    const formatedDate = bookedDate.toISOString();
+    this.isLoading.set(true);
     this.visitService.apiVisitRecordsWaitingListGet(formatedDate)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: GetVisitRecordDTOListServiceResponse) => {
           this.waitingList.set(res.data ?? []);
         },
-        error: () => { }
+        error: () => { },
+        complete: () => this.isLoading.set(false)
       });
   }
 
@@ -134,7 +158,10 @@ export class CheckInComponent implements AfterViewInit, OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (data) => console.log('updated', data),
-        error: (err) => console.error('error is', err)
+        error: (err) => {
+          this.errorMessage.set(this.errorMessage() + err.error?.message || 'Failed to update schedule');
+          console.error('error is', err)
+        },
       });
   }
 
@@ -149,7 +176,10 @@ export class CheckInComponent implements AfterViewInit, OnInit {
           this.updateDataSource(schedule.scheduleId ?? 0);  //todo. should > 0
           this.updateWaitingList(rep.data?.visitId ?? 0, newWaiting);
         },
-        error: (err) => console.error(err)
+        error: (err) => {
+          this.errorMessage.set(this.errorMessage() + err.error?.message || 'Failed to update schedule');
+          console.error('error is', err)
+        },
       });
   }
 
@@ -159,7 +189,7 @@ export class CheckInComponent implements AfterViewInit, OnInit {
       practitionerId: schedule.practitionerId,
       scheduleId: schedule.scheduleId,
       practitionerSignaturePath: "",
-      visitDate: this.today,
+      visitDate: new Date(),
       diagnosis: "",
       treatment: "",
       notes: ""
@@ -174,7 +204,7 @@ export class CheckInComponent implements AfterViewInit, OnInit {
       practitionerName: schedule.practitionerName,
       scheduleId: schedule.scheduleId,
       practitionerSignaturePath: "",
-      visitDate: this.today,
+      visitDate: new Date(),
       diagnosis: "",
       treatment: "",
       notes: ""
@@ -184,6 +214,8 @@ export class CheckInComponent implements AfterViewInit, OnInit {
   private updateDataSource(scheduleId: number): void {
     const newData = this.dataSource.data.filter(ele => ele.scheduleId !== scheduleId);
     this.dataSource.data = newData;
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
   }
 
   private updateWaitingList(visitId: number, newWaiting: GetVisitRecordDTO): void {

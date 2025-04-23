@@ -1,60 +1,78 @@
-<h3 class="text-xl font-semibold mb-4">Check In</h3>
+<div class="h-[calc(100vh-120px)] flex flex-col overflow-hidden">
+  <!-- Fixed header -->
+  <h3 class="text-xl font-semibold mb-4 sticky top-0  z-10 py-2">Check In</h3>
+  
+  <!-- Error state -->
+  @if (errorMessage()) {
+  <div class="w-full p-4 text-red-500 bg-red-50 rounded">
+      {{ errorMessage() }}
+  </div>
+  }
 
-<div class="flex flex-col space-y-6">
-    <div class="flex flex-wrap items-baseline gap-4">
-        <span class="font-bold">{{today | date:'yyyy-MM-dd'}}</span>
-        
-        <mat-form-field class="w-64">
-            <mat-label>Patients</mat-label>
-            <mat-select [formControl]="patientIdControl">
-                @for (prac of patients(); track prac) {
+  <!-- Loading overlay -->
+  @if (isLoading()) {
+  <div class="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
+      <mat-spinner></mat-spinner>
+  </div>
+  }
+
+  <!-- Scrollable content area -->
+  <div class="flex-1 overflow-auto">
+    <div class="flex flex-col space-y-2 md:space-y-4">
+        <div class="flex flex-wrap items-baseline gap-4">
+            <span class="font-bold">{{today | date:'yyyy-MM-dd'}}</span>
+
+            <mat-form-field class="w-64 mt-2">
+                <mat-label>Patients</mat-label>
+                <mat-select [formControl]="patientIdControl">
+                    @for (prac of patients(); track prac) {
                     <mat-option [value]="prac.patientId">
                         {{ prac.firstName + ' ' + prac.lastName }}
                     </mat-option>
-                }
-            </mat-select>
-        </mat-form-field>
-    </div>
+                    }
+                </mat-select>
+            </mat-form-field>
+        </div>
 
-    <div class="overflow-x-auto">
-        <table mat-table [dataSource]="dataSource" matSort class="w-full">
-            <ng-container matColumnDef="practitionerName">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Practitioner</th>
-                <td mat-cell *matCellDef="let element">{{element.practitionerName}}</td>
-            </ng-container>
+        <div class="overflow-x-auto border rounded-lg">
+            <table mat-table [dataSource]="dataSource" matSort class="w-full">
+                <ng-container matColumnDef="practitionerName">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Practitioner</th>
+                    <td mat-cell *matCellDef="let element">{{element.practitionerName}}</td>
+                </ng-container>
 
-            <ng-container matColumnDef="startDateTime">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Planned Start</th>
-                <td mat-cell *matCellDef="let element">{{element.startDateTime | date: 'HH:mm'}}</td>
-            </ng-container>
+                <ng-container matColumnDef="startDateTime">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Planned Start</th>
+                    <td mat-cell *matCellDef="let element">{{element.startDateTime | date: 'HH:mm'}}</td>
+                </ng-container>
 
-            <ng-container matColumnDef="endDateTime">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Planned End</th>
-                <td mat-cell *matCellDef="let element">{{element.endDateTime | date: 'HH:mm'}}</td>
-            </ng-container>
+                <ng-container matColumnDef="endDateTime">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Planned End</th>
+                    <td mat-cell *matCellDef="let element">{{element.endDateTime | date: 'HH:mm'}}</td>
+                </ng-container>
 
-            <ng-container matColumnDef="action">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Action</th>
-                <td mat-cell *matCellDef="let element">
-                    <button mat-raised-button color="primary" 
-                            class="px-4 py-2 rounded"
+                <ng-container matColumnDef="action">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Action</th>
+                    <td mat-cell *matCellDef="let element">
+                        <button mat-raised-button color="primary" class="px-4 py-2 rounded"
                             (click)="addWaitingList(element)">
-                        Check In
-                    </button>
-                </td>
-            </ng-container>
+                            Check In
+                        </button>
+                    </td>
+                </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 
-            <tr class="mat-row" *matNoDataRow>
-                <td class="mat-cell px-4 py-2" colspan="4">No data</td>
-            </tr>
-        </table>
+                <tr class="mat-row" *matNoDataRow>
+                    <td class="mat-cell px-4 py-2" colspan="4">No data</td>
+                </tr>
+            </table>
+        </div>
+        <mat-paginator [pageSizeOptions]="[5, 10]" showFirstLastButtons aria-label="Select page of appointments">
+        </mat-paginator>
     </div>
-
-    <div class="mt-8">
-        <h3 class="text-xl font-semibold mb-4">Waiting List</h3>
-        <app-check-in-waiting-list [waitingList]="waitingList()"></app-check-in-waiting-list>
-    </div>
+    
+    <app-check-in-waiting-list class="mt-2 block" [waitingList]="waitingList()"></app-check-in-waiting-list>
+  </div>
 </div>
