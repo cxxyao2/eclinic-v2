@@ -12,6 +12,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { SidebarStateService } from '@core/services/sidebar-state.service';
 import { MasterDataService } from '@core/services/master-data.service';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { ThemeService } from '@core/services/theme.service';
 
 // Application imports - Models
 const LANGUAGE_MAP: Record<string, string> = {
@@ -44,14 +45,15 @@ export class HeaderComponent {
   private readonly sidebarState = inject(SidebarStateService);
   private readonly masterDataService = inject(MasterDataService);
   private readonly router = inject(Router);
+  private readonly themeService = inject(ThemeService);
 
   // Protected signals and computed values
-  protected readonly isDarkMode = signal(false);
+  protected readonly isDarkMode = this.themeService.isDarkMode;
   protected readonly user = toSignal(this.masterDataService.userSubject);
   protected readonly currentLanguage = signal('EN');
 
 
-    // Protected methods (used in template)
+  // Protected methods (used in template)
   protected toggleLanguage(lang: string): void {
     this.transloco.setActiveLang(lang);
     this.currentLanguage.set(lang.toUpperCase());
@@ -62,15 +64,13 @@ export class HeaderComponent {
   }
 
   protected toggleTheme(): void {
-    this.isDarkMode.update(dark => !dark);
-    document.body.classList.toggle('dark', this.isDarkMode());
-    
+    this.themeService.toggleTheme();
   }
 
   protected logout(): void {
     localStorage.removeItem('accessToken');
     this.masterDataService.userSubject.next(null);
-    void this.router.navigate(['/login']);
+     this.router.navigate(['/login']);
   }
 }
 

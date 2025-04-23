@@ -58,7 +58,7 @@ import { ConsulationSignatureComponent } from "../consulation-signature/consulat
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ConsultationFormComponent implements OnInit {
-  protected readonly visitControl = new FormControl<GetVisitRecordDTO>({});
+  protected readonly visitControl = new FormControl<GetVisitRecordDTO | null>(null);
   protected readonly needsAdmissionControl = new FormControl(false);
   protected readonly diagnosisControl = new FormControl('');
   protected readonly treatmentControl = new FormControl('');
@@ -87,14 +87,15 @@ export class ConsultationFormComponent implements OnInit {
 
       return this.visitService.apiVisitRecordsGet(practitionerId, formattedDate)
         .pipe(
-          map(res => (res.data ?? []).filter(ele => ele.diagnosis === ""))
+          map(res => (res.data ?? []).filter(ele => (ele.notes ?? '') === ''))
         );
     }
   });
   protected readonly practitioner = this.masterService.userSubject;
   protected readonly currentVisit$ = this.consultationService.currentVisit;
-  protected readonly errorMessage = this.consultationService.errorMessage;
-  protected readonly isLoading = this.consultationService.isLoading;
+  readonly isLoading = this.consultationService.isLoading;
+  readonly errorMessage = this.consultationService.errorMessage;
+
 
   // Private properties
   private readonly visitDate = new Date();
@@ -103,36 +104,72 @@ export class ConsultationFormComponent implements OnInit {
 
   public ngOnInit(): void {
     this.consultationService.clearPrescriptions();
-    this.consultationService.currentVisit.next(null);
+    this.consultationService.currentVisit.next({});
+
+    // Subscribe to visitControl value changes
+    this.visitControl.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(visitValue => {
+        this.consultationService.currentVisit.next(visitValue);
+
+      });
   }
 
   protected onStart(): void {
-    this.consultationService.startConsultation();
+    this.isLoading.set(true);
+    this.errorMessage.set('');
+    this.consultationService.startConsultation()
+      .subscribe({
+        next: (data: GetVisitRecordDTO | null) => {
+          if (data) {
+            this.currentVisit$.next(data);
+          }
+        },
+        error: (error) => {
+          console.error('Error starting consultation', error);
+          this.isLoading.set(false);
+          this.errorMessage.set(error.error?.message || 'Failed to start consultation');
+        },
+        complete: () => this.isLoading.set(false)
+      });
   }
 
   protected onEnd(): void {
     const diagnosis = this.diagnosisForm.value.diagnosis ?? "";
     const treatment = this.diagnosisForm.value.treatment ?? "";
-    const admission = this.diagnosisForm.value.admission ?? false;
-
-    const reason = "Patient does not show up";
-    if (!(diagnosis || treatment)) {
-      const dialogRef = this.dialog.open(DialogSimpleDialog, {
-        data: { title: 'Confirm Action', content: `Do you end calling because ${reason}?`, isCancelButtonVisible: true }
-      });
-
-      dialogRef.afterClosed()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(result => {
-          if (!result) return;
-        });
-    }
+    const isAdmission = this.diagnosisForm.value.admission ?? false;
 
     if (!this.currentVisit$.value?.practitionerSignaturePath) {
       this.showSignatureDialog();
       return;
     }
 
+    const reason = "Patient does not show up";
+    if ((diagnosis + treatment).length >= 1) {
+      this.saveConsultation(diagnosis, treatment, reason, isAdmission);
+      return;
+    }
+
+
+    const dialogRef = this.dialog.open(DialogSimpleDialog, {
+      data: { title: 'Confirm Action', content: `Do you end calling because ${reason}?`, isCancelButtonVisible: true }
+    });
+
+    dialogRef.afterClosed()
+      .pipe(
+        map(result => result === 'Confirm'),
+        takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (confirm) => {
+          if (confirm) {
+            this.saveConsultation(diagnosis, treatment, reason, isAdmission);
+          }
+        }
+      })
+
+  }
+
+  private saveConsultation(diagnosis: string, treatment: string, reason: string, isAdmission = false): void {
     this.currentVisit$.next({
       ...this.currentVisit$.value,
       diagnosis,
@@ -140,10 +177,29 @@ export class ConsultationFormComponent implements OnInit {
       notes: `Process ended. ${reason}`
     });
 
-    this.consultationService.saveVisitRecord(admission);
-
+    this.isLoading.set(true);
+    this.errorMessage.set('');
+    this.consultationService.saveVisitRecord(isAdmission)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ([visitResult, prescriptionResult, inpatientResult]) => {
+          this.consultationService.clearPrescriptions();
+          this.refreshVisits();
+          this.diagnosisForm.reset();
+          visitResult.message && this.snackbar.show(visitResult.message);
+          prescriptionResult.message && this.snackbar.show(prescriptionResult.message);
+          inpatientResult.message && this.snackbar.show(inpatientResult.message);
+        },
+        error: (error) => {
+          console.error('Error saving consultation data', error);
+          this.isLoading.set(false);
+          this.errorMessage.set(error.error?.message || 'Failed to save consultation data');
+        },
+        complete: () => {
+          this.isLoading.set(false);
+        }
+      });;
   }
-
 
 
   private showSignatureDialog(): void {

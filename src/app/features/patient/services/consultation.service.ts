@@ -10,7 +10,9 @@ import {
   AddPrescriptionDTO,
   Int32ServiceResponse,
   AddInpatientDTO,
-  InpatientsService
+  InpatientsService,
+  GetInpatientDTOServiceResponse,
+  GetVisitRecordDTOServiceResponse
 } from '@libs/api-client';
 
 import { Observable, of, forkJoin, BehaviorSubject } from 'rxjs';
@@ -20,22 +22,23 @@ import { catchError, map, tap } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class ConsultationService {
-  // Convert signal to BehaviorSubject
   public readonly currentVisit = new BehaviorSubject<GetVisitRecordDTO | null>(null);
-
   public readonly prescriptions = signal<GetMedicationDTO[]>([]);
   public readonly isLoading = signal<boolean>(false);
   public readonly errorMessage = signal<string>('');
 
+
   private visitService = inject(VisitRecordsService);
   private prescriptionService = inject(PrescriptionsService);
-  private signatureService = inject(SignaturesService);
   private inpatientService = inject(InpatientsService);
   private readonly destroyRef = inject(DestroyRef);
 
-  public startConsultation(): void {
+
+  public startConsultation(): Observable<GetVisitRecordDTO | null> {
     const visit = this.currentVisit.value;
-    if (!visit || !visit.visitId) return;
+    if (!visit) {
+      return of(null);
+    }
 
     const newVisit: GetVisitRecordDTO = {
       visitId: visit.visitId,
@@ -43,40 +46,21 @@ export class ConsultationService {
       treatment: "",
       notes: "Processing"
     };
-
-    this.isLoading.set(true);
-    this.errorMessage.set('');
-
-    this.visitService.apiVisitRecordsPut(newVisit).pipe(
+    return this.visitService.apiVisitRecordsPut(newVisit).pipe(
       map(response => response.data || null),
       catchError(error => {
         console.error('Error starting consultation', error);
-        this.isLoading.set(false);
         return of(null);
       }),
       takeUntilDestroyed(this.destroyRef),
-    ).subscribe({
-      next: (data: GetVisitRecordDTO | null) => {
-        if (data) {
-          this.currentVisit.next(data);
-        }
-      },
-      error: (error) => {
-        console.error('Error starting consultation', error);
-        this.errorMessage.set(error.error?.message || 'Failed to start consultation');
-      },
-      complete: () => this.isLoading.set(false)
-    });
+    );
   }
 
-  public saveVisitRecord(needAdmission: boolean): void {
+  public saveVisitRecord(needAdmission: boolean): Observable<[GetVisitRecordDTOServiceResponse, Int32ServiceResponse, GetInpatientDTOServiceResponse]> {
     const visit = this.currentVisit.value;
-    if (!visit || !visit.visitId) return;
-
-    this.isLoading.set(true);
-    this.errorMessage.set('');
 
     // First save the visit record
+    if (!visit) throw new Error('No active visit found. Please select a visit record first.');
     const visitSave$ = this.visitService.apiVisitRecordsPut(visit);
 
     // Then prepare prescriptions if any exist
@@ -95,8 +79,8 @@ export class ConsultationService {
     }
 
     // Prepare inpatient admission if needed
-    let inpatientSave$ = of(null) as Observable<any>;
-    if (needAdmission) {
+    let inpatientSave$ = of({}) as Observable<GetInpatientDTOServiceResponse>
+    if (needAdmission && (visit.diagnosis??'').length > 0) {
       const addInpatient: AddInpatientDTO = {
         patientId: visit.patientId,
         practitionerId: visit.practitionerId,
@@ -108,35 +92,7 @@ export class ConsultationService {
     }
 
     // Execute all operations and handle results together
-    forkJoin([visitSave$, prescriptionSave$, inpatientSave$])
-      .pipe(
-        catchError(error => {
-          console.error('Error saving consultation data', error);
-          this.errorMessage.set(error.error?.message || 'Failed to save consultation data');
-          
-          return of([null, null, null]);
-        }),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: ([_, prescriptionResult, inpatientResult]) => {
-          this.currentVisit.next(null);
-          this.prescriptions.set([]);
-          const prescCount = prescriptionResult?.data || 0;
-          console.log(`Saved ${prescCount} prescriptions`);
-          if (inpatientResult) {
-            console.log('Patient admitted successfully');
-          }
-        },
-        error: (error) => {
-          console.error('Error saving consultation data', error);
-          this.errorMessage.set(error.error?.message || 'Failed to save consultation data');
-        },
-        complete: () => {
-          this.isLoading.set(false);
-          this.errorMessage.set('');
-        }
-      });
+    return forkJoin([visitSave$, prescriptionSave$, inpatientSave$]);
   }
 
   // Prescription methods
@@ -154,6 +110,7 @@ export class ConsultationService {
 
   public clearPrescriptions(): void {
     this.prescriptions.set([]);
+    this.currentVisit.next({});
   }
 
 
@@ -166,31 +123,9 @@ export class ConsultationService {
     }
   }
 
-  public saveSignature(imageData: string): Observable<string> {
-    const visit = this.currentVisit.value;
-    if (!visit || !visit.visitId) return of('');
-
-    const signatureDTO: SignatureDTO = {
-      image: imageData,
-      visitRecordId: visit.visitId
-    };
-
-    return this.signatureService.apiSignaturesPost(signatureDTO).pipe(
-      map(response => response.data || ''),
-      tap(path => {
-        if (path && visit) {
-          this.currentVisit.next({ ...visit, practitionerSignaturePath: path });
-        }
-      }),
-      catchError(error => {
-        console.error('Error saving signature', error);
-        return of('');
-      })
-    );
-  }
-
 
 }
+
 
 
 

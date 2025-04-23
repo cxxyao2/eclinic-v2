@@ -1,17 +1,15 @@
-<div class="flex flex-col space-y-4">
+<div class="flex flex-col space-y-2">
     <canvas #canvasElement height="100"
-        class="w-[300px] md:w-[600px] border-2 border-gray-300 rounded-lg touch-none hover:border-primary-500 transition-colors duration-200"
+        class="w-[350px] md:w-[600px] border-2 border-gray-300 rounded-lg touch-none dark:text-red-500 hover:border-primary-500 transition-colors duration-200"
         (mousedown)="startDrawing($event)" (mousemove)="draw($event)" (mouseup)="stopDrawing()"
         (touchstart)="startDrawing($event)" (touchmove)="draw($event)" (touchend)="stopDrawing()">
     </canvas>
 
-    <div class="flex space-x-4">
-        <button mat-stroked-button type="button" (click)="clearCanvas()"
-            class="flex-1 px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50">
+    <div class="flex space-x-4 my-4">
+        <button mat-stroked-button type="button" (click)="clearCanvas()" class="hover:bg-gray-50" [disabled]="">
             Clear
         </button>
-        <button mat-flat-button type="button" (click)="submitSignature()"
-            class="flex-1 px-4 py-2 text-white bg-primary-600 rounded-md hover:bg-primary-700">
+        <button mat-flat-button type="button" (click)="submitSignature()" class="hover:bg-primary-700">
             Confirm
         </button>
     </div>

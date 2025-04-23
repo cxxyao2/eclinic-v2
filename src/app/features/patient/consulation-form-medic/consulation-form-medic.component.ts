@@ -41,7 +41,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   templateUrl: './consulation-form-medic.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ConsulationFormMedicComponent implements  AfterViewInit {
+export class ConsulationFormMedicComponent implements AfterViewInit {
   // ViewChild decorators
   @ViewChild(MatPaginator) private readonly paginator!: MatPaginator;
   @ViewChild(MatSort) private readonly sort!: MatSort;
@@ -120,6 +120,7 @@ export class ConsulationFormMedicComponent implements  AfterViewInit {
     const data = [...this.dataSource.data];
     data.splice(index, 1);
     this.dataSource.data = data;
+    this.initializeTableControls();
     // Sync with service
     this.consultationService.removePrescription(index);
   }
@@ -131,6 +132,7 @@ export class ConsulationFormMedicComponent implements  AfterViewInit {
 
   private addMedicationToTable(medication: GetMedicationDTO): void {
     this.dataSource.data = [...this.dataSource.data, { ...medication }];
+    this.initializeTableControls();
     // Sync with service
     this.consultationService.addPrescription({ ...medication });
   }
