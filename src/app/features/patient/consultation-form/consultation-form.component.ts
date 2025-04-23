@@ -53,7 +53,7 @@ import { ConsulationSignatureComponent } from "../consulation-signature/consulat
     MatProgressSpinnerModule,
     ConsulationFormMedicComponent,
     ConsulationSignatureComponent
-],
+  ],
   templateUrl: './consultation-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -92,9 +92,9 @@ export class ConsultationFormComponent implements OnInit {
     }
   });
   protected readonly practitioner = this.masterService.userSubject;
-  protected readonly isProcessing = signal<boolean>(false);
   protected readonly currentVisit$ = this.consultationService.currentVisit;
   protected readonly errorMessage = this.consultationService.errorMessage;
+  protected readonly isLoading = this.consultationService.isLoading;
 
   // Private properties
   private readonly visitDate = new Date();
@@ -107,7 +107,6 @@ export class ConsultationFormComponent implements OnInit {
   }
 
   protected onStart(): void {
-    this.isProcessing.set(true);
     this.consultationService.startConsultation();
   }
 
@@ -142,7 +141,7 @@ export class ConsultationFormComponent implements OnInit {
     });
 
     this.consultationService.saveVisitRecord(admission);
-    this.isProcessing.set(false);
+
   }
 
 

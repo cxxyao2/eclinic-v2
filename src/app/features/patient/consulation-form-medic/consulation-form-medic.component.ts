@@ -41,7 +41,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   templateUrl: './consulation-form-medic.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ConsulationFormMedicComponent implements OnInit, AfterViewInit {
+export class ConsulationFormMedicComponent implements  AfterViewInit {
   // ViewChild decorators
   @ViewChild(MatPaginator) private readonly paginator!: MatPaginator;
   @ViewChild(MatSort) private readonly sort!: MatSort;
@@ -76,7 +76,7 @@ export class ConsulationFormMedicComponent implements OnInit, AfterViewInit {
     );
   });
 
-  ngOnInit(): void {
+  constructor() {
     // Sync the dataSource with the prescriptions from the service
     effect(() => {
       const prescriptions = this.consultationService.prescriptions();

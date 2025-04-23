@@ -30,11 +30,9 @@ export class MasterDataService {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly usersService = inject(UsersService);
 
-  constructor() {
-    this.initializeData();
-  }
 
-  private initializeData() {
+
+  public initializeData() {
     this.fetchPatients();
     this.fetchPractitioners();
     this.fetchMedications();
