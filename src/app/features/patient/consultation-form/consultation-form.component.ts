@@ -1,17 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, rxResource, signal, ViewChild } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSort, MatSortModule } from '@angular/material/sort';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatSortModule } from '@angular/material/sort';
+import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -19,15 +19,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs/operators';
 
 import {
-  AddInpatientDTO, GetMedicationDTO, GetPractitionerDTO, GetVisitRecordDTO,
-  InpatientsService, PractitionersService, PrescriptionsService, UsersService, VisitRecordsService
+  GetVisitRecordDTO,
+  VisitRecordsService
 } from '@libs/api-client';
-import { ConsulationFormMedicComponent } from '../consulation-form-medic/consulation-form-medic.component';
 import { MasterDataService } from '@core/services/master-data.service';
 import { SnackbarService } from '@core/services/snackbar-service.service';
 import { DialogSimpleDialog } from '@shared/components/dialog/dialog-simple-dialog';
 import { formatDateToYyyyMmDdPlus } from '@shared/utils/date-helpers';
-import { ConsulationSignatureComponent } from '../consulation-signature/consulation-signature.component';
 import { ConsultationService } from '../services/consultation.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
@@ -132,11 +130,12 @@ export class ConsultationFormComponent implements OnInit {
       return;
     }
 
-    this.currentVisit$.next({ 
-      ...this.currentVisit$.value, 
-      diagnosis, 
-      treatment, 
-      notes: `Process ended. ${reason}` });
+    this.currentVisit$.next({
+      ...this.currentVisit$.value,
+      diagnosis,
+      treatment,
+      notes: `Process ended. ${reason}`
+    });
 
     this.consultationService.saveVisitRecord(admission);
     this.isProcessing.set(false);
@@ -157,8 +156,7 @@ export class ConsultationFormComponent implements OnInit {
 
   // Refresh method to manually trigger a refresh of the scheduledVisits
   protected refreshVisits(): void {
-    this.scheduledVisits.refresh();
+    this.scheduledVisits.reload();
   }
-
 
 }
