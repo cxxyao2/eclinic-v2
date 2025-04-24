@@ -23,6 +23,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ConsultationService } from '../services/consultation.service';
 import { MasterDataService } from '@core/services/master-data.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-consulation-form-medic',
@@ -59,12 +60,19 @@ export class ConsulationFormMedicComponent implements AfterViewInit {
   // Signals
   private readonly allMedications = this.masterService.medicationsSubject;
   private readonly selectedMedication = signal<GetMedicationDTO>({});
-  private readonly searchTerm = toSignal(this.medicationControl.valueChanges, { initialValue: '' });
+  private readonly searchTerm = toSignal(
+    this.medicationControl.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      map(value => typeof value === 'string' ? value : value?.name || '')
+    ),
+    { initialValue: '' }
+  );
 
   // Computed signal for filtered medications
   protected readonly filterMedications = computed(() => {
     const term = this.searchTerm();
-    const name = typeof term === 'string' ? term : term?.name;
+    const name = typeof term === 'string' ? term : (term as GetMedicationDTO)?.name;
 
     if (!name) {
       return this.allMedications.value;

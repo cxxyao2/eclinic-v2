@@ -127,9 +127,12 @@ export class CheckInComponent implements AfterViewInit, OnInit {
       .subscribe({
         next: (res: GetPractitionerScheduleDTOListServiceResponse) => {
           const result = res.data ?? [];
+          console.log('result', result.filter(res => (res.patientId ?? 0) > 1));
           this.todayAllSchedules = result.filter(res => res.reasonForVisit !== 'done');
         },
-        error: () => { },
+        error: (err) => {
+          console.log('error', err);
+        },
         complete: () => this.isLoading.set(false)
       });
   }

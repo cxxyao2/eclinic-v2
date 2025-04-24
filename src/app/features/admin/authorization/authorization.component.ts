@@ -1,7 +1,7 @@
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatSelectModule } from '@angular/material/select';
 import { User, UserRole, UsersService } from '@libs/api-client';
@@ -10,11 +10,12 @@ import { concatMap, finalize, from } from 'rxjs';
 import { Router } from '@angular/router';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 
 @Component({
   selector: 'app-authorization',
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatSelectModule, MatTableModule, MatSortModule, MatPaginatorModule,],
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatSelectModule,MatProgressSpinnerModule, MatTableModule, MatSortModule, MatPaginatorModule,],
   templateUrl: './authorization.component.html',
 })
 export class AuthorizationComponent implements OnInit {
@@ -28,11 +29,16 @@ export class AuthorizationComponent implements OnInit {
   private userService = inject(UsersService);
   private router = inject(Router);
   destroyRef = inject(DestroyRef);
+  isLoading = signal(false);
   resultsLength = 0;
 
   ngOnInit(): void {
+    this.isLoading.set(true);
     this.userService.apiUsersGet().
-      pipe(takeUntilDestroyed(this.destroyRef)).subscribe(data => {
+      pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.isLoading.set(false)),
+      ).subscribe(data => {
         this.dataSource.data = data;
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
@@ -42,6 +48,7 @@ export class AuthorizationComponent implements OnInit {
   }
 
   save(): void {
+    this.isLoading.set(true);
     const updatedData = this.dataSource.data.filter((current, index) => {
       const original = this.originalData[index];
       return current.role !== original.role;
@@ -51,18 +58,14 @@ export class AuthorizationComponent implements OnInit {
       .pipe(
         concatMap((user) =>
           this.userService.apiUsersPut(user)),
-        finalize(() => {
-          this.router.navigate(['/dashboard']);
-        }),
         takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.isLoading.set(false)),
       )
       .subscribe({
-        next: (response) => {
-          if (response) {
-            console.log('Response:', response);
-          }
-        },
         error: (err) => console.error('Stream error:', err),
+        complete: () => {
+          this.router.navigate(['/dashboard']);
+        }
       });
 
   }

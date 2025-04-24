@@ -183,9 +183,8 @@ export class ConsultationFormComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: ([visitResult, prescriptionResult, inpatientResult]) => {
-          this.consultationService.clearPrescriptions();
-          this.refreshVisits();
-          this.diagnosisForm.reset();
+          this.refreshFormAndRelated();
+          
           visitResult.message && this.snackbar.show(visitResult.message);
           prescriptionResult.message && this.snackbar.show(prescriptionResult.message);
           inpatientResult.message && this.snackbar.show(inpatientResult.message);
@@ -214,8 +213,10 @@ export class ConsultationFormComponent implements OnInit {
 
 
   // Refresh method to manually trigger a refresh of the scheduledVisits
-  protected refreshVisits(): void {
+  protected refreshFormAndRelated(): void {
     this.scheduledVisits.reload();
+    this.diagnosisForm.reset();
+    this.consultationService.clearPrescriptions();
   }
 
 }
