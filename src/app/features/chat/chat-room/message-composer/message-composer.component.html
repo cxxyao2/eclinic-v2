@@ -3,7 +3,7 @@
     <mat-label>Type your message</mat-label>
     <input matInput #messageInput [formControl]="messageControl" placeholder="Type your message..." type="text" />
     <button mat-icon-button matSuffix (click)="sendMessage()" [attr.aria-label]="'send message'"
-      [class.special]="!messageControl.value.trim()" [disabled]="!messageControl.value.trim()" (click)="sendMessage()">
+      [class.disabled]="!messageControl.value.trim()" [disabled]="!messageControl.value.trim()" (click)="sendMessage()">
       <mat-icon>send</mat-icon>
     </button>
     <mat-hint align="end" class="text-xs text-gray-500">
