@@ -35,6 +35,13 @@
 
 
             @if (user()) {
+                @if(user()?.role === UserRole.Nurse) {
+                    <button id="notifications" mat-icon-button (click)="showNotifications()"
+                        aria-label="Show Notifications">
+                        <mat-icon role="alert" class="notification-icon"
+                            [matBadge]="sseService.message().length">notifications</mat-icon>
+                    </button>
+                    }
             <button mat-flat-button (click)="logout()" matTooltip="Logout"
                 class="ml-2 flex items-center gap-2 bg-primary-dark hover:bg-primary-darker">
                 <span class="hidden md:block capitalize">{{ user()?.userName }}</span>

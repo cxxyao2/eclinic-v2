@@ -10,7 +10,7 @@ export class SseClientService implements OnDestroy {
   public readonly message = signal<GetInpatientDTO[]>([]);
   private eventSource: EventSource;
 
-  constructor(@Optional() @Inject(BASE_PATH) basePath: string | string[]) {
+  constructor( @Inject(BASE_PATH) basePath: string | string[]) {
     this.url = basePath + this.url;
     this.eventSource = new EventSource(this.url);
 

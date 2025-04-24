@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -7,9 +7,10 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CdkDragDrop, CdkDrag, CdkDropList } from '@angular/cdk/drag-drop';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { BedsService, GetBedDTO, GetInpatientDTO, InpatientsService, UpdateBedDTO } from '@libs/api-client';
+import { BedsService, GetBedDTO, InpatientsService, UpdateBedDTO } from '@libs/api-client';
 import { MasterDataService } from '@services/master-data.service';
-import { combineLatest, concatMap, finalize, from, map } from 'rxjs';
+import { combineLatest, concatMap, finalize, from, map, forkJoin } from 'rxjs';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-inpatient-bed-assign',
@@ -19,6 +20,7 @@ import { combineLatest, concatMap, finalize, from, map } from 'rxjs';
     MatButtonModule,
     MatCardModule,
     MatIconModule,
+    MatProgressSpinnerModule,
     RouterModule,
     CdkDropList,
     CdkDrag
@@ -35,17 +37,17 @@ export class InpatientBedAssignComponent implements OnInit {
   private readonly masterService = inject(MasterDataService);
   private readonly inpatientService = inject(InpatientsService);
   private readonly destroyRef = inject(DestroyRef);
-  private existingInpatients: readonly GetInpatientDTO[] = [];
+
 
   // Protected properties for template access
   protected readonly patientInWaiting = toSignal(this.masterService.selectedPatientSubject);
   protected roomNumber: string | null = null;
   protected bedsOfRoom: readonly GetBedDTO[] = [];
+  protected readonly isLoadingResults = signal<boolean>(false);
 
 
   public ngOnInit(): void {
     this.initializeRoomData();
-    this.fetchInpatients();
   }
 
   protected addToRoom(): void {
@@ -58,7 +60,9 @@ export class InpatientBedAssignComponent implements OnInit {
       ...emptyBed,
       inpatientId: this.patientInWaiting()?.inpatientId,
       patientName: this.patientInWaiting()?.patientName,
-      practitionerName: this.patientInWaiting()?.practitionerName
+      practitionerName: this.patientInWaiting()?.practitionerName,
+      nurseId: this.masterService.userSubject.value?.userID,
+      nurseName: this.masterService.userSubject.value?.userName
     };
 
     this.bedsOfRoom = currentBeds.map(bed =>
@@ -86,6 +90,7 @@ export class InpatientBedAssignComponent implements OnInit {
     );
   }
 
+  // change room by drag & drop
   protected drop(event: CdkDragDrop<GetBedDTO[]>): void {
     const { previousIndex, currentIndex } = event;
     const beds = [...this.bedsOfRoom];
@@ -103,14 +108,22 @@ export class InpatientBedAssignComponent implements OnInit {
     this.bedsOfRoom = updatedBeds;
   }
 
-  protected async onSave(): Promise<void> {
-    try {
-      await this.saveBeds();
-      await this.saveInpatients();
-      await this.router.navigate(['/dashboard']);
-    } catch (error) {
-      console.error('Operation failed:', error);
-    }
+  protected onSave(): void {
+    this.isLoadingResults.set(true);
+
+    forkJoin([
+      this.saveBeds(),
+      this.saveInpatients()
+    ]).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.isLoadingResults.set(false))
+    ).subscribe({
+      next: () => {
+        this.masterService.selectedPatientSubject.next(null);
+        this.router.navigate(['/dashboard']);
+      },
+      error: (error) => console.error('Operation failed:', error)
+    });
   }
 
   private initializeRoomData(): void {
@@ -129,16 +142,7 @@ export class InpatientBedAssignComponent implements OnInit {
     });
   }
 
-  private fetchInpatients(): void {
-    if (!this.roomNumber) return;
 
-    this.inpatientService.apiInpatientsGet(this.roomNumber)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res) => this.existingInpatients = res.data ?? [],
-        error: (err) => console.error('Failed to fetch inpatients:', err)
-      });
-  }
 
   private getPatientInfo(bed: GetBedDTO) {
     return {
@@ -148,23 +152,19 @@ export class InpatientBedAssignComponent implements OnInit {
     };
   }
 
-  private async saveBeds(): Promise<void> {
-    const saveBeds$ = from(this.bedsOfRoom).pipe(
-      concatMap((bed: GetBedDTO) => this.bedService.apiBedsPut(bed as UpdateBedDTO))
-    );
+  private saveBeds() {
+    const updatedBeds: UpdateBedDTO[] = this.bedsOfRoom.map(bed => ({
+      bedId: bed.bedId,
+      inpatientId: bed.inpatientId
+    }));
 
-    return new Promise((resolve, reject) => {
-      saveBeds$.subscribe({
-        complete: resolve,
-        error: reject
-      });
-    });
+    return this.bedService.apiBedsBatchUpdatePut(updatedBeds);
+
   }
 
-  private async saveInpatients(): Promise<void> {
-    const nurseId = this.masterService.userSubject.value?.practitionerId;
+  private saveInpatients() {
+    const nurseId = this.masterService.userSubject.value?.userID;
     const changedInPatients = this.bedsOfRoom
-      .filter(bed => bed.inpatientId)
       .map(bed => ({
         inpatientId: bed.inpatientId!,
         nurseId,
@@ -172,15 +172,7 @@ export class InpatientBedAssignComponent implements OnInit {
         bedNumber: bed.bedNumber
       }));
 
-    const saveInpatients$ = from(changedInPatients).pipe(
-      concatMap((inp: GetInpatientDTO) => this.inpatientService.apiInpatientsPut(inp))
-    );
+    return this.inpatientService.apiInpatientsBatchUpdatePut(changedInPatients);
 
-    return new Promise((resolve, reject) => {
-      saveInpatients$.subscribe({
-        complete: resolve,
-        error: reject
-      });
-    });
   }
 }

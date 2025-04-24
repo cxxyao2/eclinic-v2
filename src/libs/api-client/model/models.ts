@@ -66,6 +66,7 @@ export * from './responseDto';
 export * from './signatureDTO';
 export * from './stringServiceResponse';
 export * from './updateBedDTO';
+export * from './updateBedDTOListServiceResponse';
 export * from './updatePractitionerScheduleDTO';
 export * from './user';
 export * from './userCreateDTO';

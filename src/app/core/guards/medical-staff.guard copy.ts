@@ -16,8 +16,8 @@ export const medicalStaffGuard: CanActivateFn = (next: ActivatedRouteSnapshot,
     router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
     return false;
   }
-  
-  if (user.role === UserRole.Nurse || user.role === UserRole.Practitioner) {
+
+  if (user.role === UserRole.Nurse || user.role === UserRole.Practitioner || user.role === UserRole.Admin) {
     return true;
   }
   snackbar.show('You are not medical staff', 'error-snackbar');

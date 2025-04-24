@@ -15,11 +15,12 @@ export const adminGuard: CanActivateFn = (next: ActivatedRouteSnapshot,
   const masterService = inject(MasterDataService);
   const router = inject(Router);
   const snackbar = inject(SnackbarService);
-  
+
   const user = masterService.userSubject.value;
-  
-  if (user) {
-    return isAdmin(user);
+
+  if (user && !isAdmin(user)) {
+    snackbar.show('You are not admin', 'error-snackbar');
+    return false;
   }
 
   return masterService.validateTokenAndFetchUser().pipe(
@@ -29,8 +30,13 @@ export const adminGuard: CanActivateFn = (next: ActivatedRouteSnapshot,
         router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
         return false;
       }
-      
-      return isAdmin(user);
+
+      if (user && !isAdmin(user)) {
+        snackbar.show('You are not admin', 'error-snackbar');
+        return false;
+      }
+
+      return true;
     })
   );
 };

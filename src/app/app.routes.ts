@@ -1,7 +1,8 @@
 import { Routes } from '@angular/router';
 import { adminGuard } from '@core/guards/admin.guard';
 import { authGuard } from '@core/guards/auth.guard';
-import { medicalStaffGuard } from '@core/guards/medical-staff.guard';
+import { inpatientGuard } from '@core/guards/inpatient.guard';
+import { medicalStaffGuard } from '@core/guards/medical-staff.guard copy';
 import { ActiveAccountComponent } from '@features/auth/active-account/active-account.component';
 import { LoginComponent } from '@features/auth/login/login.component';
 import { RegisterComponent } from '@features/auth/register/register.component';
@@ -38,7 +39,8 @@ export const routes: Routes = [
             },
             {
                 path: 'booking',
-                loadComponent: () => import('./features/patient/book-appointment/book-appointment.component').then(c => c.BookAppointmentComponent)
+                loadComponent: () => import('./features/patient/book-appointment/book-appointment.component').then(c => c.BookAppointmentComponent),
+
             },
             {
                 path: 'checkin',
@@ -48,11 +50,16 @@ export const routes: Routes = [
                 path: 'consultation',
                 loadComponent: () => import('./features/patient/consultation-form/consultation-form.component').then(c => c.ConsultationFormComponent)
             },
-
             {
-                path: 'admission',
-                loadComponent: () => import('./features/patient/inpatient-admit/inpatient-admit.component').then(c => c.InpatientAdmitComponent)
+                path: 'inpatient',
+                loadComponent: () => import('./features/patient/inpatient-rooms/inpatient-rooms.component').then(c => c.InpatientRoomsComponent)
             },
+            {
+                path: "inpatient/:roomNumber",
+                loadComponent: () => import('./features/patient/inpatient-bed-assign/inpatient-bed-assign.component').then(c => c.InpatientBedAssignComponent),
+                canActivate: [inpatientGuard],
+            },
+
             {
                 path: 'admin',
                 children: [

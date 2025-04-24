@@ -96,6 +96,7 @@ model/responseDto.ts
 model/signatureDTO.ts
 model/stringServiceResponse.ts
 model/updateBedDTO.ts
+model/updateBedDTOListServiceResponse.ts
 model/updatePractitionerScheduleDTO.ts
 model/user.ts
 model/userCreateDTO.ts

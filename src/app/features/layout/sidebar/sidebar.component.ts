@@ -74,7 +74,6 @@ export class SidebarComponent {
     {
       icon: "hub",
       label: "Admin",
-      route: 'admin',
       subItems: [
         {
           icon: 'admin_panel_settings',

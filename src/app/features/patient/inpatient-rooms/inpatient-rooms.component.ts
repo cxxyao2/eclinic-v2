@@ -24,7 +24,7 @@ interface Room {
 }
 
 @Component({
-  selector: 'app-inpatient-admit',
+  selector: 'app-inpatient-rooms',
   standalone: true,
   imports: [
     CommonModule,
@@ -32,10 +32,10 @@ interface Room {
     MatCardModule,
     MatIconModule
   ],
-  templateUrl: './inpatient-admit.component.html',
+  templateUrl: './inpatient-rooms.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class InpatientAdmitComponent implements OnInit {
+export class InpatientRoomsComponent implements OnInit {
   // Private injected services
   private readonly bedService = inject(BedsService);
   private readonly masterService = inject(MasterDataService);

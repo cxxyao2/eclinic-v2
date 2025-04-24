@@ -1,4 +1,12 @@
 <div class="p-4 max-w-7xl mx-auto">
+  <!-- Loading overlay -->
+  @if (isLoadingResults()) {
+  <div class="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
+    <mat-spinner></mat-spinner>
+  </div>
+  }
+
+ 
   <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
     <span>Room: {{roomNumber}}</span>
     <span class="text-gray-600">Patient: {{patientInWaiting()?.patientName}}</span>
@@ -33,6 +41,7 @@
       Save
     </button>
   </div>
+
 
   <!-- Beds Grid -->
   <div 
