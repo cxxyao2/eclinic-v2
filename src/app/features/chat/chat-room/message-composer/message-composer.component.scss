@@ -1,7 +1,10 @@
+@use "@angular/material" as mat;
+
 :host {
   display: block;
+  --mat-icon-color: var(--mat-sys-primary);
 }
 
-mat-form-field {
-  --mdc-outlined-text-field-outline-color: var(--mat-app-outline);
+.special {
+  --mat-icon-color: var(--mat-sys-disabled);
 }

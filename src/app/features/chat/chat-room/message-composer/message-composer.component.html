@@ -1,41 +1,14 @@
-<div class="flex items-begin gap-2">
-  <mat-form-field 
-    appearance="outline" 
-    class="flex-grow">
-    <textarea 
-      matInput 
-      #messageInput
-      [formControl]="messageControl"
-      placeholder="Type a message..."
-      (input)="autoResizeTextarea()"
-      rows="1"
-      [maxlength]="MAX_MESSAGE_LENGTH"
-      class="resize-none max-h-[150px] overflow-y-auto
-             scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300/20 hover:scrollbar-thumb-gray-300/30
-             focus:scrollbar-thumb-gray-300/40"
-    ></textarea>
+<div class="flex items-begin gap-2 ">
+  <mat-form-field class="w-full">
+    <mat-label>Type your message</mat-label>
+    <input matInput #messageInput [formControl]="messageControl" placeholder="Type your message..." type="text" />
+    <button mat-icon-button matSuffix (click)="sendMessage()" [attr.aria-label]="'send message'"
+      [class.special]="!messageControl.value.trim()" [disabled]="!messageControl.value.trim()" (click)="sendMessage()">
+      <mat-icon>send</mat-icon>
+    </button>
     <mat-hint align="end" class="text-xs text-gray-500">
       {{ messageControl.value.length }}/{{ MAX_MESSAGE_LENGTH }}
     </mat-hint>
   </mat-form-field>
 
-  <button 
-    mat-flat-button
-    [disabled]="!messageControl.value.trim()"
-    (click)="sendMessage()"
-    class="h-10 mb-3 px-4
-           transition-colors duration-200 ease-in-out
-           flex items-center justify-center gap-2
-           disabled:opacity-50 disabled:cursor-not-allowed"
-    [ngClass]="{
-      'bg-[var(--mat-app-primary)] text-[var(--mat-app-on-primary)]': messageControl.value.trim(),
-      'bg-gray-200 text-gray-400': !messageControl.value.trim()
-    }"
-    aria-label="Send message"
-  >
-    <span class="text-sm font-medium">Send</span>
-    <mat-icon class="text-lg w-5 h-5">send</mat-icon>
-  </button>
 </div>
-
-
