@@ -19,7 +19,8 @@ export class CheckInWaitingListComponent implements AfterViewInit {
   // ViewChild
   @ViewChild(MatPaginator) private readonly paginator!: MatPaginator;
   // Input Properties
-  @Input({ required: true }) set waitingList(newList: GetVisitRecordDTO[]) {
+  @Input({ required: true })
+  set waitingList(newList: GetVisitRecordDTO[]) {
     this.dataSource.data = newList;
   }
 

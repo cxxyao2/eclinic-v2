@@ -27,7 +27,7 @@
                 @if (scheduledVisits.error()) {
                 <div class="w-full p-4 text-red-500 bg-red-50 rounded mb-4">
                     {{ scheduledVisits.error() || 'Failed to fetch visit records' }}
-                    <button mat-button color="primary" (click)="refreshVisits()" type="button">
+                    <button mat-button color="primary" (click)="refreshFormAndRelated()" type="button">
                         <mat-icon>refresh</mat-icon> Retry
                     </button>
                 </div>

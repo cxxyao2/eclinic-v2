@@ -29,6 +29,7 @@ import {
 import { MasterDataService } from '@services/master-data.service';
 import { CheckInWaitingListComponent } from '../check-in-waiting-list/check-in-waiting-list.component';
 import { formatDateToYyyyMmDdPlus } from '@shared/utils/date-helpers';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-check-in',
@@ -123,7 +124,9 @@ export class CheckInComponent implements AfterViewInit, OnInit {
     const formattedDate = bookedDate.toISOString();
     this.isLoading.set(true);
     this.scheduleService.apiPractitionerSchedulesByDateGet(formattedDate)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.isLoading.set(false)))
       .subscribe({
         next: (res: GetPractitionerScheduleDTOListServiceResponse) => {
           const result = res.data ?? [];
@@ -132,8 +135,7 @@ export class CheckInComponent implements AfterViewInit, OnInit {
         },
         error: (err) => {
           console.log('error', err);
-        },
-        complete: () => this.isLoading.set(false)
+        }
       });
   }
 
@@ -141,13 +143,16 @@ export class CheckInComponent implements AfterViewInit, OnInit {
     const formatedDate = bookedDate.toISOString();
     this.isLoading.set(true);
     this.visitService.apiVisitRecordsWaitingListGet(formatedDate)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.isLoading.set(false)))
       .subscribe({
         next: (res: GetVisitRecordDTOListServiceResponse) => {
           this.waitingList.set(res.data ?? []);
         },
-        error: () => { },
-        complete: () => this.isLoading.set(false)
+        error: (err) => {
+          this.waitingList.set([]);
+          console.log('error', err);
+        }
       });
   }
 
@@ -157,8 +162,10 @@ export class CheckInComponent implements AfterViewInit, OnInit {
       reasonForVisit: 'done'
     };
 
+    this.isLoading.set(true);
     this.scheduleService.apiPractitionerSchedulesPut(newSchedule)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.isLoading.set(false)))
       .subscribe({
         next: (data) => console.log('updated', data),
         error: (err) => {
@@ -172,8 +179,10 @@ export class CheckInComponent implements AfterViewInit, OnInit {
     const newVisit: AddVisitRecordDTO = this.createVisitRecord(schedule);
     const newWaiting: GetVisitRecordDTO = this.createWaitingRecord(schedule);
 
+    this.isLoading.set(true);
     this.visitService.apiVisitRecordsPost(newVisit)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.isLoading.set(false)))
       .subscribe({
         next: (rep: GetVisitRecordDTOServiceResponse) => {
           this.updateDataSource(schedule.scheduleId ?? 0);  //todo. should > 0

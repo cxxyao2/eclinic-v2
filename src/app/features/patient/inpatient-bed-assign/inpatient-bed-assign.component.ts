@@ -9,8 +9,9 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BedsService, GetBedDTO, InpatientsService, UpdateBedDTO } from '@libs/api-client';
 import { MasterDataService } from '@services/master-data.service';
-import { combineLatest, concatMap, finalize, from, map, forkJoin } from 'rxjs';
+import { combineLatest, finalize, map, forkJoin } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-inpatient-bed-assign',
@@ -44,6 +45,8 @@ export class InpatientBedAssignComponent implements OnInit {
   protected roomNumber: string | null = null;
   protected bedsOfRoom: readonly GetBedDTO[] = [];
   protected readonly isLoadingResults = signal<boolean>(false);
+  protected readonly errorMessage = signal<string>('');
+  protected readonly isAssigned = signal<boolean>(false);
 
 
   public ngOnInit(): void {
@@ -68,6 +71,7 @@ export class InpatientBedAssignComponent implements OnInit {
     this.bedsOfRoom = currentBeds.map(bed =>
       bed.bedNumber === emptyBed.bedNumber ? updatedBed : bed
     );
+    this.isAssigned.set(true);
   }
 
   protected removeFromRoom(): void {
@@ -88,6 +92,8 @@ export class InpatientBedAssignComponent implements OnInit {
     this.bedsOfRoom = currentBeds.map(bed =>
       bed.bedNumber === occupiedBed.bedNumber ? updatedBed : bed
     );
+
+    this.isAssigned.set(false);
   }
 
   // change room by drag & drop
@@ -110,6 +116,7 @@ export class InpatientBedAssignComponent implements OnInit {
 
   protected onSave(): void {
     this.isLoadingResults.set(true);
+    this.errorMessage.set('');
 
     forkJoin([
       this.saveBeds(),
@@ -118,11 +125,13 @@ export class InpatientBedAssignComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef),
       finalize(() => this.isLoadingResults.set(false))
     ).subscribe({
-      next: () => {
+      error: (error: HttpErrorResponse) => {
+        this.errorMessage.set(JSON.stringify(error.error.errors) || 'Failed to save changes');
+      },
+      complete: () => {
         this.masterService.selectedPatientSubject.next(null);
         this.router.navigate(['/dashboard']);
       },
-      error: (error) => console.error('Operation failed:', error)
     });
   }
 
@@ -165,6 +174,7 @@ export class InpatientBedAssignComponent implements OnInit {
   private saveInpatients() {
     const nurseId = this.masterService.userSubject.value?.userID;
     const changedInPatients = this.bedsOfRoom
+      .filter(bed => bed.inpatientId)
       .map(bed => ({
         inpatientId: bed.inpatientId!,
         nurseId,

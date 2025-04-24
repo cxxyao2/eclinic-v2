@@ -80,18 +80,25 @@ export class ConsultationFormComponent implements OnInit {
   // Signals and Observables
   protected readonly visitRecord = toSignal(this.visitControl.valueChanges);
   protected readonly needAdmission = toSignal(this.needsAdmissionControl.valueChanges);
-  protected readonly scheduledVisits = rxResource<GetVisitRecordDTO[], void>({
-    loader: () => {
-      const practitionerId = this.practitioner.value?.userID ?? 0;
-      const formattedDate = new Date(formatDateToYyyyMmDdPlus(this.visitDate, '00:00:00')).toISOString();
+  protected readonly practitioner = this.masterService.userSubject;
 
-      return this.visitService.apiVisitRecordsGet(practitionerId, formattedDate)
+  // Convert BehaviorSubject to signal
+  protected readonly practitionerSignal = toSignal(this.practitioner, { initialValue: null });
+
+  // Use the rxResource pattern with request/loader
+  protected readonly scheduledVisits = rxResource<GetVisitRecordDTO[], { practitionerId: number, date: string }>({
+    request: () => ({
+      practitionerId: this.practitionerSignal()?.userID ?? 0,
+      date: new Date(formatDateToYyyyMmDdPlus(this.visitDate, '00:00:00')).toISOString()
+    }),
+    loader: ({ request }) => {
+      return this.visitService.apiVisitRecordsGet(request.practitionerId, request.date)
         .pipe(
           map(res => (res.data ?? []).filter(ele => (ele.notes ?? '') === ''))
         );
     }
   });
-  protected readonly practitioner = this.masterService.userSubject;
+
   protected readonly currentVisit$ = this.consultationService.currentVisit;
   readonly isLoading = this.consultationService.isLoading;
   readonly errorMessage = this.consultationService.errorMessage;
