@@ -1,12 +1,14 @@
 import {
   ChangeDetectionStrategy,
-  Component
+  Component,
+  inject
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 
 import { HeaderComponent } from "../header/header.component";
 import { SidebarComponent } from "../sidebar/sidebar.component";
+import { SidebarStateService } from '@core/services/sidebar-state.service';
 
 @Component({
   selector: 'app-menu',
@@ -21,5 +23,13 @@ import { SidebarComponent } from "../sidebar/sidebar.component";
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MenuComponent {
+  protected readonly sidebarState = inject(SidebarStateService);
+
+  closeSidebarForSmallScreens() {
+    if (window.innerWidth < 768) {
+      this.sidebarState.close();
+    }
+  }
+
 
 }

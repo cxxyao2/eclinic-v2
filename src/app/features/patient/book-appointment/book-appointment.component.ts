@@ -3,7 +3,7 @@ import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, ViewChil
 import { CommonModule } from '@angular/common';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { catchError, concatMap, finalize, from, map, merge, of as observableOf, startWith, switchMap, tap } from 'rxjs';
+import { catchError, concatMap, debounceTime, distinctUntilChanged, finalize, from, map, merge, of as observableOf, startWith, switchMap, tap } from 'rxjs';
 
 
 // Angular Material Imports
@@ -81,11 +81,10 @@ export class BookAppointmentComponent implements AfterViewInit {
     protected readonly patientId$ = toSignal(this.patientIdControl.valueChanges, { initialValue: 0 });
 
     // Table Configuration
-    protected readonly displayedColumns: readonly string[] = ['index', 'practitionerName', 'startDateTime', 'actions','endDateTime', 'patientName'];
+    protected readonly displayedColumns: readonly string[] = ['index', 'practitionerName', 'startDateTime', 'actions', 'endDateTime', 'patientName'];
     protected readonly dataSource = new MatTableDataSource<GetPractitionerScheduleDTO>([]);
 
     // Private State
-    private initialData: GetPractitionerScheduleDTO[] = [];
     private updateData: GetPractitionerScheduleDTO[] = [];
 
     // ViewChild References
@@ -100,18 +99,24 @@ export class BookAppointmentComponent implements AfterViewInit {
 
     // Lifecycle Hooks
     public ngAfterViewInit(): void {
+        console.log("value", this.masterDataService.patientsSubject.value)
         this.setupPatientSubscription();
         this.setupScheduleSubscription();
         this.initializeDataSource();
     }
 
     private setupPatientSubscription(): void {
-        this.isLoadingResults.set(true);
-        this.masterDataService.patientsSubject
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-            next: (data) => this.patients.set(data),
-            complete: () => this.isLoadingResults.set(false)
+        this.patientIdControl.valueChanges.pipe(
+            startWith(this.patientIdControl.value),  // Emit initial value
+            debounceTime(300),
+            distinctUntilChanged(),
+            takeUntilDestroyed(this.destroyRef),
+            map(patientId => patientId ?? 0),
+            map(patientId => this.patients().find(p => p.patientId === patientId))
+        ).subscribe(patient => {
+            if (patient) {
+                this.selectedPatient.set(patient as UserProfile);
+            }
         });
     }
 

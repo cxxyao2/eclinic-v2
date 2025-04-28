@@ -23,7 +23,7 @@
         <!-- Patient Select -->
         <mat-form-field class="w-full">
           <mat-label>Patients</mat-label>
-          <mat-select [formControl]="patientIdControl" (selectionChange)="onPatientChange($event)">
+          <mat-select [formControl]="patientIdControl">
             @for (prac of patients(); track prac) {
             <mat-option [value]="prac.patientId">{{ prac.firstName + ' ' + prac.lastName }}</mat-option>
             }

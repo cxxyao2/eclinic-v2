@@ -79,7 +79,7 @@ export class MenuItemComponent implements OnInit {
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(url => {
                 if (this.item().route && url) {
-                    this.expanded.set(url.indexOf(`/${this.item().route}`) === 0);
+                    this.expanded.set(url.startsWith(`/${this.item().route}`));
                 }
             });
     }
