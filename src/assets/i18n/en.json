@@ -15,5 +15,6 @@
   "inpatient": "Inpatient",
   "login": "Login",
   "logout": "Logout",
-  "toggle": "Toggle"
+  "toggle": "Toggle",
+  "collapse": "Collapse"
 }

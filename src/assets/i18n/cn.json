@@ -15,6 +15,7 @@
   "inpatient": "住院病人",
   "login": "登录",
   "logout": "退出",
-  "toggle": "切换"
+  "toggle": "切换",
+  "collapse": "折叠"
 }
   

@@ -15,6 +15,6 @@
   "inpatient": "入院患者",
   "login": "ログイン",
   "logout": "ログアウト",
-  "toggle": "切り替え"
+  "toggle": "切り替え",
+  "collapse": "折りたたむ"
 }
-  

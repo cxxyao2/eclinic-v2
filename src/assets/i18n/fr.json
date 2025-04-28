@@ -15,5 +15,6 @@
   "inpatient": "Hospitalisé",
   "login": "s'connecter",
   "logout": "s'déconnecter",
-  "toggle": "Basculer"
+  "toggle": "Basculer",
+  "collapse": "Replier"
 }
