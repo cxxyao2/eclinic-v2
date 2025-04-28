@@ -99,7 +99,10 @@ export class BookAppointmentComponent implements AfterViewInit {
 
     // Lifecycle Hooks
     public ngAfterViewInit(): void {
-        console.log("value", this.masterDataService.patientsSubject.value)
+        this.masterDataService.patientsSubject
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(data => this.patients.set(data));
+
         this.setupPatientSubscription();
         this.setupScheduleSubscription();
         this.initializeDataSource();
