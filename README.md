@@ -65,3 +65,5 @@ middle-size: 768px
 ![admission](/screenshots/14-admission-real-time-sse.png)
 15, assign bed
 ![assign bed](/screenshots/15-assign-bed.png)
+16, deployed as Azure static web app
+![static web app](/screenshots/16-website.png)
