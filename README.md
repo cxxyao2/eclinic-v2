@@ -11,7 +11,7 @@ middle-size: 768px
 ## CI/CD, Deployment Automation
 
 - Utilized GitHub Actions workflow for building and testing.
-- The project was deployed via Azure static web app.
+- The project was deployed via Azure static web app. [mini-clinic-online](https://mango-sand-0eb22740f.6.azurestaticapps.net)
 
 ## Export && Import data of PostgreSQL
 
@@ -31,7 +31,7 @@ middle-size: 768px
 ## Server-Client communication approachs
 
 1. SSE (Server-Sent Events)
-   2, SignalR
+2. SignalR
 
 ## Screenshots
 
