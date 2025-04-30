@@ -8,6 +8,11 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 
 middle-size: 768px
 
+## CI/CD, Deployment Automation
+
+- Utilized GitHub Actions workflow for building and testing.
+- The project was deployed via Azure static web app.
+
 ## Export && Import data of PostgreSQL
 
 1. I use Docker to run PostgreSQL.
