@@ -27,9 +27,8 @@ export class ConsultationService {
   public readonly isLoading = signal<boolean>(false);
   public readonly errorMessage = signal<string>('');
 
-
-  private visitService = inject(VisitRecordsService);
-  private prescriptionService = inject(PrescriptionsService);
+  private readonly visitService = inject(VisitRecordsService);
+  private readonly prescriptionService = inject(PrescriptionsService);
   private inpatientService = inject(InpatientsService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -80,7 +79,7 @@ export class ConsultationService {
 
     // Prepare inpatient admission if needed
     let inpatientSave$ = of({}) as Observable<GetInpatientDTOServiceResponse>
-    if (needAdmission && (visit.diagnosis??'').length > 0) {
+    if (needAdmission && (visit.diagnosis ?? '').length > 0) {
       const addInpatient: AddInpatientDTO = {
         patientId: visit.patientId,
         practitionerId: visit.practitionerId,

@@ -22,3 +22,41 @@ middle-size: 768px
    Right-click on your target database in the browser tree and select "Restore..."
    Data imported successfully.
    ![alt text](./screenshots/import-pgAdmin.png)
+
+## Server-Client communication approachs
+
+1. SSE (Server-Sent Events)
+   2, SignalR
+
+## Screenshots
+
+1, login
+![login](/screenshots/1-login.png)
+2, dark mode
+![dark mode](/screenshots/2-darkmode.png)
+3, light mode
+![light mode](/screenshots/3-lightmode.png)
+4, internationalization
+![internationalization](/screenshots/4-internationallize.png)
+5, data crud
+![data crud](/screenshots/5-crud.png)
+6, chatroom(signalR)
+![chatroom](/screenshots/6-chatroom-signalR.png)
+7, responsive UI (big screen)
+![responsive UI](/screenshots/7-responsive-big.png)
+8, responsive UI (small screen)
+![responsive UI](/screenshots/7-responsive-small.png)
+9, route guard (Admin role can access admin page)
+![route guard](/screenshots/8-login-log-admin.png)
+10, route guard (User role can not access admin page)
+![route guard](/screenshots/8-login-log-non-admin.png)
+11, book appointment
+![book appointment](/screenshots/11-booking.png)
+12, check in
+![check in](/screenshots/12-checkin.png)
+13, consultation
+![consultation](/screenshots/13-consulation.png)
+14, real-time admission notification via SSE (server-sent events)
+![admission](/screenshots/14-admission-real-time-sse.png)
+15, assign bed
+![assign bed](/screenshots/15-assign-bed.png)
