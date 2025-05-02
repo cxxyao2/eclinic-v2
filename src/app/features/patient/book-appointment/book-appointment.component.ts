@@ -23,7 +23,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 // Application Imports
 import { AddPractitionerScheduleDTO, GetPatientDTO, GetPractitionerScheduleDTO, PractitionerSchedulesService } from '@libs/api-client';
 import { ProfileComponent } from '@shared/components/profile/profile.component';
-import { UserProfile } from '@shared/models/userProfile.model';
+import { UserProfile } from '@shared/models/index';
 import { MasterDataService } from '@core/services/master-data.service';
 import { SnackbarService } from '@core/services/snackbar-service.service';
 import { formatDateToYyyyMmDdPlus } from '@shared/utils/date-helpers';

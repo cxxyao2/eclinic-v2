@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { UserProfile } from '@shared/models/userProfile.model';
+import { UserProfile } from '@shared/models/index';
 
 
 @Component({
