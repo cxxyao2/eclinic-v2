@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { adminGuard } from '@core/guards/admin.guard';
 import { authGuard } from '@core/guards/auth.guard';
 import { inpatientGuard } from '@core/guards/inpatient.guard';
-import { medicalStaffGuard } from '@core/guards/medical-staff.guard copy';
+import { medicalStaffGuard } from '@core/guards/medical-staff.guard';
 import { ActiveAccountComponent } from '@features/auth/active-account/active-account.component';
 import { LoginComponent } from '@features/auth/login/login.component';
 import { RegisterComponent } from '@features/auth/register/register.component';
