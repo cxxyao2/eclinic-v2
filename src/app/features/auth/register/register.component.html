@@ -10,10 +10,10 @@
           <mat-form-field class="w-full">
             <mat-label>First Name</mat-label>
             <input matInput formControlName="firstName" placeholder="Enter your first name">
-            @if (registerForm.get('firstName')?.hasError('required') && registerForm.get('firstName')?.touched) {
+            @if (registerForm.controls.firstName.hasError('required') && registerForm.controls.firstName.touched) {
             <mat-error>First name is required</mat-error>
             }
-            @if (registerForm.get('firstName')?.hasError('minlength')) {
+            @if (registerForm.controls.firstName.hasError('minlength')) {
             <mat-error>First name must be at least 2 characters</mat-error>
             }
           </mat-form-field>
@@ -23,10 +23,10 @@
           <mat-form-field class="w-full">
             <mat-label>Last Name</mat-label>
             <input matInput formControlName="lastName" placeholder="Enter your last name">
-            @if (registerForm.get('lastName')?.hasError('required') && registerForm.get('lastName')?.touched) {
+            @if (registerForm.controls.lastName.hasError('required') && registerForm.controls.lastName.touched) {
             <mat-error>Last name is required</mat-error>
             }
-            @if (registerForm.get('lastName')?.hasError('minlength')) {
+            @if (registerForm.controls.lastName.hasError('minlength')) {
             <mat-error>Last name must be at least 2 characters</mat-error>
             }
           </mat-form-field>
@@ -36,10 +36,10 @@
           <mat-form-field class="w-full">
             <mat-label>Email</mat-label>
             <input matInput formControlName="email" placeholder="Enter your email" type="email">
-            @if (registerForm.get('email')?.hasError('required') && registerForm.get('email')?.touched) {
+            @if (registerForm.controls.email.hasError('required') && registerForm.controls.email.touched) {
             <mat-error>Email is required</mat-error>
             }
-            @if (registerForm.get('email')?.hasError('email')) {
+            @if (registerForm.controls.email.hasError('email')) {
             <mat-error>Please enter a valid email address</mat-error>
             }
           </mat-form-field>
@@ -53,10 +53,10 @@
             <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
               <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
             </button>
-            @if (registerForm.get('password')?.hasError('required') && registerForm.get('password')?.touched) {
+            @if (registerForm.controls.password.hasError('required') && registerForm.controls.password.touched) {
             <mat-error>Password is required</mat-error>
             }
-            @if (registerForm.get('password')?.hasError('minlength')) {
+            @if (registerForm.controls.password.hasError('minlength')) {
             <mat-error>Password must be at least 6 characters</mat-error>
             }
           </mat-form-field>
@@ -67,8 +67,8 @@
             <mat-label>Confirm Password</mat-label>
             <input matInput formControlName="confirmPassword" [type]="hidePassword ? 'password' : 'text'"
               placeholder="Confirm your password">
-            @if (registerForm.get('confirmPassword')?.hasError('required') &&
-            registerForm.get('confirmPassword')?.touched) {
+            @if (registerForm.controls.confirmPassword.hasError('required') &&
+            registerForm.controls.confirmPassword.touched) {
             <mat-error>Please confirm your password</mat-error>
             }
             @if (registerForm.hasError('mismatch')) {
