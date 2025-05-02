@@ -51,6 +51,10 @@ export const routes: Routes = [
                 loadComponent: () => import('./features/patient/consultation-form/consultation-form.component').then(c => c.ConsultationFormComponent)
             },
             {
+                path: 'waiting-list',
+                loadComponent: () => import('./features/patient/waiting-list/waiting-list.component').then(c => c.WaitingListComponent)
+            },
+            {
                 path: 'inpatient',
                 loadComponent: () => import('./features/patient/inpatient-rooms/inpatient-rooms.component').then(c => c.InpatientRoomsComponent)
             },

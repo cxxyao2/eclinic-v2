@@ -67,6 +67,11 @@ export class SidebarComponent {
       route: 'consultation'
     },
     {
+      icon: 'list_alt',
+      label: 'Waiting List',
+      route: 'waiting-list'
+    },
+    {
       icon: 'chat',
       label: 'Chat',
       route: 'chat'

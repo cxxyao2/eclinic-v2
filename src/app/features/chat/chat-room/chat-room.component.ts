@@ -10,7 +10,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { map } from 'rxjs/operators';
 
-import {  SignalRChatService } from '@core/services/signalr-chat.service';
+import { SignalRChatService } from '@core/services/signalr-chat.service';
 import { ChatMessageDTO } from '@libs/api-client';
 import { MessageComposerComponent } from './message-composer/message-composer.component';
 import { ParticipantComponent } from './participant/participant.component';
@@ -32,12 +32,12 @@ import { ParticipantComponent } from './participant/participant.component';
   templateUrl: './chat-room.component.html',
   styleUrls: ['./chat-room.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
- 
+
 })
 export class ChatRoomComponent {
   private readonly route = inject(ActivatedRoute);
-  private chatService = inject(SignalRChatService);
-  private destroyRef = inject(DestroyRef);
+  private readonly chatService = inject(SignalRChatService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected showMessageComposer = signal(false);
 
@@ -126,7 +126,7 @@ export class ChatRoomComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(error => this.errorMessage.set(error));
 
-    
+
   }
 
   private async initializeRoom(): Promise<void> {
@@ -141,7 +141,7 @@ export class ChatRoomComponent {
 
   protected onMessageSent(message: string): void {
     this.chatService.sendMessage(this.roomId(), message);
-   
+
   }
 
   ngOnDestroy() {

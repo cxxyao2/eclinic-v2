@@ -1,23 +1,20 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
   <h2 class="text-2xl font-bold mb-6">Waiting List</h2>
 
-  <mat-tab-group 
-    [selectedIndex]="currentIndex"
-    (selectedIndexChange)="onTabChange($event)"
+  <mat-tab-group [selectedIndex]="currentIndex" (selectedIndexChange)="onTabChange($event)"
     class="bg-white rounded-lg shadow-lg">
-    
+
     <!-- Screen 1 -->
     <mat-tab label="Current Queue">
       <div class="p-6">
-        <div class="grid grid-cols-3 gap-4">
-          <!-- Use async pipe to automatically handle subscription -->
-          <ng-container *ngIf="waitingList$ |async patients">
-            <div class="waiting-list">
-              <!-- Your existing template using patients -->
-              <div *ngFor="let patient of patients">
-                <!-- Patient details -->
-              </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  gap-4">
+          <ng-container *ngIf="waitingList() as patients">
+            <!-- Your existing template using patients -->
+            <div *ngFor="let patient of patients" class="flex  border rounded-lg p-4">
+              <div>{{patient.patientName}}</div>
+              <div>Arrived at: &nbsp;{{patient.visitDate | date:'HH:mm'}}</div>
             </div>
+
           </ng-container>
         </div>
       </div>
@@ -27,8 +24,7 @@
     <mat-tab label="Now Serving">
       <div class="p-6">
         <div class="flex justify-center items-center min-h-[300px]">
-          <!-- Use async pipe to automatically handle subscription -->
-          <ng-container *ngIf="waitingList$ | async as patients">
+          <ng-container *ngIf="waitingList() as patients">
             <div class="waiting-list">
               <!-- Your existing template using patients -->
               <div *ngFor="let patient of patients">
@@ -44,8 +40,7 @@
     <mat-tab label="Upcoming">
       <div class="p-6">
         <div class="space-y-4">
-          <!-- Use async pipe to automatically handle subscription -->
-          <ng-container *ngIf="waitingList$ | async as patients">
+          <ng-container *ngIf="waitingList() as patients">
             <div class="waiting-list">
               <!-- Your existing template using patients -->
               <div *ngFor="let patient of patients">
