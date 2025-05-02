@@ -34,16 +34,20 @@ export class AuthorizationComponent implements OnInit {
 
   ngOnInit(): void {
     this.isLoading.set(true);
-    this.userService.apiUsersGet().
-      pipe(
+    this.userService.apiUsersGet()
+      .pipe(
         takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.isLoading.set(false)),
-      ).subscribe(data => {
-        this.dataSource.data = data;
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-        this.resultsLength = data.length;
-        this.originalData = JSON.parse(JSON.stringify(data));
+        finalize(() => this.isLoading.set(false))
+      )
+      .subscribe({
+        next: (data) => {
+          this.dataSource.data = data;
+          this.dataSource.paginator = this.paginator;
+          this.dataSource.sort = this.sort;
+          this.resultsLength = data.length;
+          this.originalData = structuredClone(data);
+        },
+        error: (error) => console.error('Failed to load users:', error)
       });
   }
 
