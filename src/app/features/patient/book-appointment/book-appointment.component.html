@@ -12,11 +12,9 @@
     <!-- Right side - Main content -->
     <div class="flex-1 relative">
       <!-- Loading Indicator -->
-      @if (isLoadingResults()) {
-      <div class="absolute inset-0 bg-black/15 z-10 flex items-center justify-center">
+      <div *ngIf="isLoadingResults()" class="absolute inset-0 bg-black/15 z-10 flex items-center justify-center">
         <mat-spinner></mat-spinner>
       </div>
-      }
 
       <!-- Controls Section - Two inputs per row on md+ screens -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 mt-2">
@@ -50,7 +48,7 @@
 
       <!-- Table Section -->
       <div class="border rounded ">
-        <table mat-table [dataSource]="dataSource" matSort class="w-full">
+        <table mat-table [dataSource]="scheduleData$()" matSort class="w-full">
           <!-- Index Column -->
           <ng-container matColumnDef="index">
             <th mat-header-cell *matHeaderCellDef class="w-12">{{ columnHeaders['index'] }}</th>

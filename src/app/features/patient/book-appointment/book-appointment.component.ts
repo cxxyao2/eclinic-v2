@@ -3,7 +3,7 @@ import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, ViewChil
 import { CommonModule } from '@angular/common';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { catchError, concatMap, debounceTime, distinctUntilChanged, finalize, from, map, merge, of as observableOf, startWith, switchMap, tap } from 'rxjs';
+import { catchError, concatMap, debounceTime, distinctUntilChanged, finalize, from, map, merge, of as observableOf, of, startWith, switchMap, tap } from 'rxjs';
 
 
 // Angular Material Imports
@@ -26,7 +26,6 @@ import { ProfileComponent } from '@shared/components/profile/profile.component';
 import { UserProfile } from '@shared/models/index';
 import { MasterDataService } from '@core/services/master-data.service';
 import { SnackbarService } from '@core/services/snackbar-service.service';
-import { formatDateToYyyyMmDdPlus } from '@shared/utils/date-helpers';
 
 
 
@@ -97,6 +96,27 @@ export class BookAppointmentComponent implements AfterViewInit {
     private readonly snackbarService = inject(SnackbarService);
     private readonly destroyRef = inject(DestroyRef);
 
+    protected readonly scheduleData$ = toSignal(
+        merge(this.patientIdControl.valueChanges, this.workDayControl.valueChanges).pipe(
+          startWith({}),
+          switchMap(() => {
+            this.isLoadingResults.set(true);
+            return this.fetchScheduleData();
+          }),
+          map(this.processScheduleResponse.bind(this)),
+          tap(data => {
+            this.isLoadingResults.set(false);
+            this.initializeDataSource(data ?? []);
+          }),
+          catchError(error => {
+            this.isLoadingResults.set(false);
+            console.error('Error fetching schedule data:', error);
+            return of([]);
+          })
+        ),
+        { initialValue: [] }
+      );
+
     // Lifecycle Hooks
     public ngAfterViewInit(): void {
         this.masterDataService.patientsSubject
@@ -104,7 +124,6 @@ export class BookAppointmentComponent implements AfterViewInit {
             .subscribe(data => this.patients.set(data));
 
         this.setupPatientSubscription();
-        this.setupScheduleSubscription();
         this.initializeDataSource();
     }
 
@@ -123,23 +142,7 @@ export class BookAppointmentComponent implements AfterViewInit {
         });
     }
 
-    private setupScheduleSubscription(): void {
-        merge(this.patientIdControl.valueChanges, this.workDayControl.valueChanges)
-            .pipe(
-                startWith({}),
-                switchMap(() => {
-                    this.isLoadingResults.set(true);
-                    return this.fetchScheduleData();
-                }),
-                map(this.processScheduleResponse.bind(this)),
-                takeUntilDestroyed(this.destroyRef)
-            )
-            .subscribe(data => {
-                this.isLoadingResults.set(false);
-                this.dataSource.data = data ?? [];
-                this.initializeDataSource();
-            });
-    }
+ 
 
     private fetchScheduleData() {
         const workDate = this.workDayControl.value;
@@ -163,7 +166,8 @@ export class BookAppointmentComponent implements AfterViewInit {
         return response?.data ?? [];
     }
 
-    private initializeDataSource(): void {
+    private initializeDataSource(data: any[] = []): void {
+        this.dataSource.data = data;
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
     }

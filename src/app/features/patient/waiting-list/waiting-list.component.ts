@@ -1,22 +1,21 @@
 import { CommonModule } from '@angular/common';
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   inject,
   OnDestroy,
   OnInit,
   signal
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatTabsModule } from '@angular/material/tabs';
 import {
   GetVisitRecordDTO,
-  GetVisitRecordDTOListServiceResponse,
   VisitRecordsService
 } from '@libs/api-client';
 import { formatDateToYyyyMmDdPlus } from '@shared/utils/date-helpers';
+import { catchError, map, of } from 'rxjs';
 
 @Component({
   selector: 'app-waiting-list',
@@ -29,10 +28,10 @@ import { formatDateToYyyyMmDdPlus } from '@shared/utils/date-helpers';
   styleUrl: './waiting-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class WaitingListComponent implements AfterViewInit, OnInit, OnDestroy {
+export class WaitingListComponent implements OnInit, OnDestroy {
   // Protected signals and state
   protected readonly patients = signal<GetVisitRecordDTO[]>([]);
-  protected readonly today = new Date();
+  protected readonly todayInISOFormat = new Date(formatDateToYyyyMmDdPlus((new Date()), '00:00:00')).toISOString();
   protected currentIndex = 0;
 
   // Private properties
@@ -40,9 +39,15 @@ export class WaitingListComponent implements AfterViewInit, OnInit, OnDestroy {
   private intervalId?: number;
   private readonly destroyRef = inject(DestroyRef);
 
-  public ngAfterViewInit(): void {
-    this.getWaitingListByDate(this.today);
-  }
+  // Replace manual subscription with observable + async pipe
+  protected readonly waitingList$ = computed(() => {
+
+    return this.visitService.apiVisitRecordsWaitingListGet(this.todayInISOFormat).pipe(
+      map(res => res.data ?? []),
+      catchError(() => of([]))
+    );
+  });
+
 
   public ngOnInit(): void {
     this.startCarousel();
@@ -56,20 +61,7 @@ export class WaitingListComponent implements AfterViewInit, OnInit, OnDestroy {
     this.currentIndex = index;
   }
 
-  private getWaitingListByDate(bookedDate: Date): void {
-    const formatedDate = new Date(formatDateToYyyyMmDdPlus(bookedDate, '00:00:00')).toISOString();
-    this.visitService.apiVisitRecordsWaitingListGet(formatedDate)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res: GetVisitRecordDTOListServiceResponse) => {
-          const visits = res.data ?? [];
-          this.patients.set(visits);
-        },
-        error: () => {
-          // Handle error if needed
-        }
-      });
-  }
+
 
   private startCarousel(): void {
     this.intervalId = window.setInterval(() => {

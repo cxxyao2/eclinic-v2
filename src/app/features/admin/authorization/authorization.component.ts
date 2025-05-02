@@ -15,7 +15,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-authorization',
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatSelectModule,MatProgressSpinnerModule, MatTableModule, MatSortModule, MatPaginatorModule,],
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatSelectModule, MatProgressSpinnerModule, MatTableModule, MatSortModule, MatPaginatorModule,],
   templateUrl: './authorization.component.html',
 })
 export class AuthorizationComponent implements OnInit {
@@ -26,8 +26,8 @@ export class AuthorizationComponent implements OnInit {
   dataSource = new MatTableDataSource<User>([]);
   originalData: User[] = [];
   userRoles = Object.entries(UserRole).map(([text, value]) => ({ text, value }));
-  private userService = inject(UsersService);
-  private router = inject(Router);
+  private readonly userService = inject(UsersService);
+  private readonly router = inject(Router);
   destroyRef = inject(DestroyRef);
   isLoading = signal(false);
   resultsLength = 0;
@@ -59,13 +59,14 @@ export class AuthorizationComponent implements OnInit {
         concatMap((user) =>
           this.userService.apiUsersPut(user)),
         takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.isLoading.set(false)),
+        finalize(() => {
+          this.isLoading.set(false);
+          this.router.navigate(['/dashboard']);
+        }
+        ),
       )
       .subscribe({
         error: (err) => console.error('Stream error:', err),
-        complete: () => {
-          this.router.navigate(['/dashboard']);
-        }
       });
 
   }
