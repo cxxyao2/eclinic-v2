@@ -1,22 +1,28 @@
 <h2 mat-dialog-title>{{ data.title }}</h2>
 <mat-dialog-content>
     <!-- Check if data.content is an array -->
-    <ng-container *ngIf="isArray()">
+    @if(isArray()){
+    <ng-container>
         <form [formGroup]="form">
             <mat-selection-list #itemsList [formControl]="itemsControl" name="items" [multiple]="false">
                 @for (item of listData(); track item[data.optionId!]) {
-                    <mat-list-option [value]="item[data.optionId!]">
-                        {{ item[data.optionValue!] }}
-                    </mat-list-option>
+                <mat-list-option [value]="item[data.optionId!]">
+                    {{ item[data.optionValue!] }}
+                </mat-list-option>
                 }
             </mat-selection-list>
         </form>
     </ng-container>
+    }
 
     <!-- Fallback for single object or other content -->
-    <ng-container *ngIf="!isArray()">
+    @if(!isArray()){
+    <ng-container>
         <p>{{ data.content }}</p>
     </ng-container>
+
+    }
+
 </mat-dialog-content>
 
 <mat-dialog-actions>
