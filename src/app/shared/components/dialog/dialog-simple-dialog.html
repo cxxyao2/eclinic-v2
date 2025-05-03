@@ -4,9 +4,11 @@
     <ng-container *ngIf="isArray()">
         <form [formGroup]="form">
             <mat-selection-list #itemsList [formControl]="itemsControl" name="items" [multiple]="false">
-                <mat-list-option *ngFor="let item of listData()" [value]="item[data.optionId!]">
-                    {{ item[data.optionValue!] }}
-                </mat-list-option>
+                @for (item of listData(); track item[data.optionId!]) {
+                    <mat-list-option [value]="item[data.optionId!]">
+                        {{ item[data.optionValue!] }}
+                    </mat-list-option>
+                }
             </mat-selection-list>
         </form>
     </ng-container>

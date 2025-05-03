@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import { Component, inject, OnInit, signal } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -18,7 +17,6 @@ export interface DialogData {
   selector: 'dialog-simple-dialog',
   templateUrl: 'dialog-simple-dialog.html',
   imports: [
-    CommonModule,
     MatButtonModule,
     MatDialogModule,
     MatListModule,

@@ -7,15 +7,15 @@
     <!-- Screen 1 -->
     <mat-tab label="Current Queue">
       <div class="p-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  gap-4">
-          <ng-container *ngIf="waitingList() as patients">
-            <!-- Your existing template using patients -->
-            <div *ngFor="let patient of patients" class="flex  border rounded-lg p-4">
-              <div>{{patient.patientName}}</div>
-              <div>Arrived at: &nbsp;{{patient.visitDate | date:'HH:mm'}}</div>
-            </div>
-
-          </ng-container>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          @if (waitingList(); as patients) {
+            @for (patient of patients; track patient) {
+              <div class="flex border rounded-lg p-4">
+                <div>{{patient.patientName}}</div>
+                <div>Arrived at: &nbsp;{{patient.visitDate | date:'HH:mm'}}</div>
+              </div>
+            }
+          }
         </div>
       </div>
     </mat-tab>
@@ -24,14 +24,13 @@
     <mat-tab label="Now Serving">
       <div class="p-6">
         <div class="flex justify-center items-center min-h-[300px]">
-          <ng-container *ngIf="waitingList() as patients">
+          @if (waitingList(); as patients) {
             <div class="waiting-list">
-              <!-- Your existing template using patients -->
-              <div *ngFor="let patient of patients">
+              @for (patient of patients; track patient) {
                 <!-- Patient details -->
-              </div>
+              }
             </div>
-          </ng-container>
+          }
         </div>
       </div>
     </mat-tab>
@@ -40,14 +39,13 @@
     <mat-tab label="Upcoming">
       <div class="p-6">
         <div class="space-y-4">
-          <ng-container *ngIf="waitingList() as patients">
+          @if (waitingList(); as patients) {
             <div class="waiting-list">
-              <!-- Your existing template using patients -->
-              <div *ngFor="let patient of patients">
+              @for (patient of patients; track patient) {
                 <!-- Patient details -->
-              </div>
+              }
             </div>
-          </ng-container>
+          }
         </div>
       </div>
     </mat-tab>
