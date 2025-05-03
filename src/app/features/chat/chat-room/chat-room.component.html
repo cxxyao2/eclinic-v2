@@ -16,9 +16,8 @@
         </div>
         <div class="flex -space-x-2 overflow-hidden">
           @for (participant of participants.slice(0, 6); track participant.userId) {
-          <img [src]="participant.avatarUrl" [alt]="participant.name"
-            class="inline-block h-8 w-8 rounded-full ring-2 ring-[var(--mat-sys-surface-container-lowest)]"
-            />
+          <img [src]="participant.avatarUrl" [alt]="participant.name" loading="eager" fetchpriority="high"
+            class="inline-block h-8 w-8 rounded-full ring-2 ring-[var(--mat-sys-surface-container-lowest)]" />
           }
           @if (participants.length > 6) {
           <div
