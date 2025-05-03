@@ -12,14 +12,14 @@ import { jwtDecode } from 'jwt-decode';
 })
 export class MasterDataService {
   // Public properties
-  public readonly messageSubject = new BehaviorSubject<string>('');
-  public readonly practitionersSubject = new BehaviorSubject<GetPractitionerDTO[]>([]);
-  public readonly medicationsSubject = new BehaviorSubject<GetMedicationDTO[]>([]);
-  public readonly patientsSubject = new BehaviorSubject<GetPatientDTO[]>([]);
-  public readonly bedsSubject = new BehaviorSubject<GetBedDTO[]>([]);
-  public readonly userSubject = new BehaviorSubject<User | null>(null);
-  public readonly imageRecordsSubjet = new BehaviorSubject<GetImageRecordDTO[]>([]);
-  public readonly selectedPatientSubject = new BehaviorSubject<GetInpatientDTO | null>(null);
+  public readonly messageSubject$ = new BehaviorSubject<string>('');
+  public readonly practitionersSubject$ = new BehaviorSubject<GetPractitionerDTO[]>([]);
+  public readonly medicationsSubject$ = new BehaviorSubject<GetMedicationDTO[]>([]);
+  public readonly patientsSubject$ = new BehaviorSubject<GetPatientDTO[]>([]);
+  public readonly bedsSubject$ = new BehaviorSubject<GetBedDTO[]>([]);
+  public readonly userSubject$ = new BehaviorSubject<User | null>(null);
+  public readonly imageRecordsSubjet$ = new BehaviorSubject<GetImageRecordDTO[]>([]);
+  public readonly selectedPatientSubject$ = new BehaviorSubject<GetInpatientDTO | null>(null);
 
   // Private properties
   private readonly practitionerService = inject(PractitionersService);
@@ -46,9 +46,9 @@ export class MasterDataService {
     }
 
     const token = localStorage.getItem('accessToken');
-    
+
     if (!token) {
-      this.userSubject.next(null);
+      this.userSubject$.next(null);
       return of(null);
     }
 
@@ -59,20 +59,20 @@ export class MasterDataService {
 
         if (isExpired) {
           localStorage.removeItem('accessToken');
-          this.userSubject.next(null);
+          this.userSubject$.next(null);
           observer.next(null);
           observer.complete();
           return;
         }
 
-        const userId = decodedToken['nameidentifier'] || 
-                      decodedToken['nameid'] || 
-                      decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] ||
-                      Object.entries(decodedToken).find(([key]) => key.toLowerCase().endsWith('nameidentifier'))?.[1];
+        const userId = decodedToken['nameidentifier'] ||
+          decodedToken['nameid'] ||
+          decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] ||
+          Object.entries(decodedToken).find(([key]) => key.toLowerCase().endsWith('nameidentifier'))?.[1];
 
         if (!userId) {
           localStorage.removeItem('accessToken');
-          this.userSubject.next(null);
+          this.userSubject$.next(null);
           observer.next(null);
           observer.complete();
           return;
@@ -85,18 +85,18 @@ export class MasterDataService {
           ).subscribe({
             next: (user) => {
               if (user) {
-                this.userSubject.next(user);
+                this.userSubject$.next(user);
                 observer.next(user);
               } else {
                 localStorage.removeItem('accessToken');
-                this.userSubject.next(null);
+                this.userSubject$.next(null);
                 observer.next(null);
               }
               observer.complete();
             },
             error: () => {
               localStorage.removeItem('accessToken');
-              this.userSubject.next(null);
+              this.userSubject$.next(null);
               observer.next(null);
               observer.complete();
             }
@@ -104,7 +104,7 @@ export class MasterDataService {
       } catch (error) {
         console.error('Error decoding token:', error);
         localStorage.removeItem('accessToken');
-        this.userSubject.next(null);
+        this.userSubject$.next(null);
         observer.next(null);
         observer.complete();
       }
@@ -118,14 +118,14 @@ export class MasterDataService {
       .pipe(
         map(response => response.data ?? []),
         catchError(error => {
-          this.messageSubject.next(error?.message ?? JSON.stringify(error));
+          this.messageSubject$.next(error?.message ?? JSON.stringify(error));
           return [];
         }),
         takeUntilDestroyed(this.destroyRef)
       ).subscribe({
         next: (data) => {
-          this.imageRecordsSubjet.next(data);
-          this.messageSubject.next('');
+          this.imageRecordsSubjet$.next(data);
+          this.messageSubject$.next('');
         }
       });
   }
@@ -136,14 +136,14 @@ export class MasterDataService {
       .pipe(
         map(response => response.data ?? []),
         catchError(error => {
-          this.messageSubject.next(error?.message ?? JSON.stringify(error));
+          this.messageSubject$.next(error?.message ?? JSON.stringify(error));
           return [];
         }),
         takeUntilDestroyed(this.destroyRef)
       ).subscribe({
         next: (data) => {
-          this.practitionersSubject.next(data);
-          this.messageSubject.next('');
+          this.practitionersSubject$.next(data);
+          this.messageSubject$.next('');
         }
       });
   }
@@ -156,14 +156,14 @@ export class MasterDataService {
       .pipe(
         map(response => response.data ?? []),
         catchError(error => {
-          this.messageSubject.next(error?.message ?? JSON.stringify(error));
+          this.messageSubject$.next(error?.message ?? JSON.stringify(error));
           return [];
         }),
         takeUntilDestroyed(this.destroyRef)
       ).subscribe({
         next: (data) => {
-          this.medicationsSubject.next(data);
-          this.messageSubject.next('');
+          this.medicationsSubject$.next(data);
+          this.messageSubject$.next('');
         }
       });
   }
@@ -174,14 +174,14 @@ export class MasterDataService {
       .pipe(
         map(response => response.data ?? []),
         catchError(error => {
-          this.messageSubject.next(error?.message ?? JSON.stringify(error));
+          this.messageSubject$.next(error?.message ?? JSON.stringify(error));
           return [];
         }),
         takeUntilDestroyed(this.destroyRef)
       ).subscribe({
         next: (data) => {
-          this.patientsSubject.next(data);
-          this.messageSubject.next('');
+          this.patientsSubject$.next(data);
+          this.messageSubject$.next('');
         }
       });
   }

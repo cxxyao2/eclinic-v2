@@ -9,7 +9,7 @@ export const medicalStaffGuard: CanActivateFn = (next: ActivatedRouteSnapshot,
   const masterService = inject(MasterDataService);
   const router = inject(Router);
   const snackbar = inject(SnackbarService);
-  const user = masterService.userSubject.value;
+  const user = masterService.userSubject$.value;
 
   if (!user) {
     snackbar.show('You need to login first', 'error-snackbar');

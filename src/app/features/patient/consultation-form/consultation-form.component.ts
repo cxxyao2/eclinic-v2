@@ -80,7 +80,7 @@ export class ConsultationFormComponent implements OnInit {
   // Signals and Observables
   protected readonly visitRecord = toSignal(this.visitControl.valueChanges);
   protected readonly needAdmission = toSignal(this.needsAdmissionControl.valueChanges);
-  protected readonly practitioner = this.masterService.userSubject;
+  protected readonly practitioner = this.masterService.userSubject$;
 
   // Convert BehaviorSubject to signal
   protected readonly practitionerSignal = toSignal(this.practitioner, { initialValue: null });
@@ -99,7 +99,7 @@ export class ConsultationFormComponent implements OnInit {
     }
   });
 
-  protected readonly currentVisit$ = this.consultationService.currentVisit;
+  protected readonly currentVisit$ = this.consultationService.currentVisit$;
   readonly isLoading = this.consultationService.isLoading;
   readonly errorMessage = this.consultationService.errorMessage;
 
@@ -111,13 +111,13 @@ export class ConsultationFormComponent implements OnInit {
 
   public ngOnInit(): void {
     this.consultationService.clearPrescriptions();
-    this.consultationService.currentVisit.next({});
+    this.consultationService.currentVisit$.next({});
 
     // Subscribe to visitControl value changes
     this.visitControl.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(visitValue => {
-        this.consultationService.currentVisit.next(visitValue);
+        this.consultationService.currentVisit$.next(visitValue);
 
       });
   }
@@ -191,7 +191,7 @@ export class ConsultationFormComponent implements OnInit {
       .subscribe({
         next: ([visitResult, prescriptionResult, inpatientResult]) => {
           this.refreshFormAndRelated();
-          
+
           visitResult.message && this.snackbar.show(visitResult.message);
           prescriptionResult.message && this.snackbar.show(prescriptionResult.message);
           inpatientResult.message && this.snackbar.show(inpatientResult.message);

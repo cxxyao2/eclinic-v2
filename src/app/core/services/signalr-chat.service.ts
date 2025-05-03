@@ -10,15 +10,15 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 })
 export class SignalRChatService {
   public hubConnection: HubConnection | undefined;
-  private errorSubject = new Subject<string>();
-  private messagesSubject = new BehaviorSubject<ChatMessageDTO[]>([]);
-  private apiChatService = inject(ChatService);
+  private readonly  errorSubject$ = new Subject<string>();
+  private readonly messagesSubject$ = new BehaviorSubject<ChatMessageDTO[]>([]);
+  private readonly apiChatService = inject(ChatService);
 
-  public errors$ = this.errorSubject.asObservable();
-  public messages$ = this.messagesSubject.asObservable();
-  private destroyRef = inject(DestroyRef);
+  public errors$ = this.errorSubject$.asObservable();
+  public messages$ = this.messagesSubject$.asObservable();
+  private readonly destroyRef = inject(DestroyRef);
 
-  constructor(@Optional() @Inject(BASE_PATH) private basePath: string) {
+  constructor(@Optional() @Inject(BASE_PATH) private readonly basePath: string) {
     this.basePath = basePath || '';
   }
 
@@ -36,13 +36,13 @@ export class SignalRChatService {
       
       // Set up message receiver
       this.hubConnection.on('ReceiveMessage', (message: ChatMessageDTO) => {
-        const currentMessages = this.messagesSubject.value;
-        this.messagesSubject.next([message, ...currentMessages]);
+        const currentMessages = this.messagesSubject$.value;
+        this.messagesSubject$.next([message, ...currentMessages]);
       });
 
     } catch (err) {
       const errorMessage = 'Error while starting connection: ' + (err instanceof Error ? err.message : String(err));
-      this.errorSubject.next(errorMessage);
+      this.errorSubject$.next(errorMessage);
       throw err;
     }
   };
@@ -50,7 +50,7 @@ export class SignalRChatService {
   private ensureConnection(): asserts this is { hubConnection: HubConnection } {
     if (!this.hubConnection) {
       const errorMessage = 'No connection available';
-      this.errorSubject.next(errorMessage);
+      this.errorSubject$.next(errorMessage);
       throw new Error(errorMessage);
     }
   }
@@ -61,7 +61,7 @@ export class SignalRChatService {
       await this.hubConnection.invoke('JoinRoom', roomId);
     } catch (err) {
       const errorMessage = 'Failed to join room: ' + (err instanceof Error ? err.message : String(err));
-      this.errorSubject.next(errorMessage);
+      this.errorSubject$.next(errorMessage);
       throw err;
     }
   }
@@ -72,7 +72,7 @@ export class SignalRChatService {
       await this.hubConnection.invoke('LeaveRoom', roomId);
     } catch (err) {
       const errorMessage = 'Failed to leave room: ' + (err instanceof Error ? err.message : String(err));
-      this.errorSubject.next(errorMessage);
+      this.errorSubject$.next(errorMessage);
       throw err;
     }
   }
@@ -83,7 +83,7 @@ export class SignalRChatService {
       await this.hubConnection.invoke('SendMessage', roomId, message);
     } catch (err) {
       const errorMessage = 'Failed to send message: ' + (err instanceof Error ? err.message : String(err));
-      this.errorSubject.next(errorMessage);
+      this.errorSubject$.next(errorMessage);
       throw err;
     }
   }
@@ -108,16 +108,16 @@ export class SignalRChatService {
         map(messages => messages.reverse()),
         takeUntilDestroyed(this.destroyRef)
       ).subscribe({
-        next: (messages) => this.messagesSubject.next(messages),
+        next: (messages) => this.messagesSubject$.next(messages),
         error: (err) => {
           const errorMessage = 'Failed to fetch messages: ' + (err instanceof Error ? err.message : String(err));
-          this.errorSubject.next(errorMessage);
+          this.errorSubject$.next(errorMessage);
           throw err;
         }
       });
     } catch (err) {
       const errorMessage = 'Failed to fetch messages: ' + (err instanceof Error ? err.message : String(err));
-      this.errorSubject.next(errorMessage);
+      this.errorSubject$.next(errorMessage);
       throw err;
     }
   }
@@ -128,7 +128,7 @@ export class SignalRChatService {
         this.hubConnection.stop();
       } catch (err) {
         const errorMessage = 'Error disconnecting: ' + (err instanceof Error ? err.message : String(err));
-        this.errorSubject.next(errorMessage);
+        this.errorSubject$.next(errorMessage);
       }
     }
   }

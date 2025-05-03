@@ -116,8 +116,8 @@ export class PractitionerScheduleComponent implements AfterViewInit {
 
     // Reset to first page when sort changes
     this.sort.sortChange
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe(() => (this.paginator.pageIndex = 0));
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => (this.paginator.pageIndex = 0));
 
     merge(
       this.practitionerIdControl.valueChanges,
@@ -225,7 +225,7 @@ export class PractitionerScheduleComponent implements AfterViewInit {
   }
 
   private initializePractitionerData(): void {
-    this.masterDataService.practitionersSubject
+    this.masterDataService.practitionersSubject$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (data) => this.practitioners.set(data),

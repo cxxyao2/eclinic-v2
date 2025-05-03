@@ -11,9 +11,9 @@ export const authGuard: CanActivateFn = (next: ActivatedRouteSnapshot,
   const masterService = inject(MasterDataService);
   const router = inject(Router);
   const snackbar = inject(SnackbarService);
-  
-  const user = masterService.userSubject.value;
-  
+
+  const user = masterService.userSubject$.value;
+
   if (user) {
     return true;
   }
@@ -25,7 +25,7 @@ export const authGuard: CanActivateFn = (next: ActivatedRouteSnapshot,
         router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
         return false;
       }
-      
+
       return true;
     })
   );

@@ -66,7 +66,7 @@ export class HeaderComponent {
 
   // Protected signals and computed values
   protected readonly isDarkMode = this.themeService.isDarkMode;
-  protected readonly user = toSignal(this.masterDataService.userSubject);
+  protected readonly user = toSignal(this.masterDataService.userSubject$);
   protected readonly currentLanguage = signal('EN');
 
 
@@ -86,7 +86,7 @@ export class HeaderComponent {
 
   protected logout(): void {
     localStorage.removeItem('accessToken');
-    this.masterDataService.userSubject.next(null);
+    this.masterDataService.userSubject$.next(null);
     this.router.navigate(['/login']);
   }
 
@@ -111,7 +111,7 @@ export class HeaderComponent {
       takeUntilDestroyed(this.destroyRef),
       filter((result): result is object => typeof result === 'object' && !!result),
       tap(result => {
-        this.masterDataService.selectedPatientSubject.next(result);
+        this.masterDataService.selectedPatientSubject$.next(result);
         this.router.navigate(['/inpatient']);
       })
     ).subscribe();

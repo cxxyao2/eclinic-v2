@@ -1,18 +1,18 @@
 
-import { 
-  ChangeDetectionStrategy, 
-  Component, 
-  DestroyRef, 
-  inject, 
-  signal 
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  signal
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { 
-  FormBuilder, 
-  FormControl, 
-  ReactiveFormsModule, 
-  Validators 
+import {
+  FormBuilder,
+  FormControl,
+  ReactiveFormsModule,
+  Validators
 } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -50,20 +50,20 @@ export class CreateChatRoomComponent {
   // Form controls
   protected readonly roomForm = this.fb.group({
     patient: new FormControl<string | Patient>('', { nonNullable: true }),
-    topic: new FormControl('', { 
-      nonNullable: true, 
-      validators: [Validators.required] 
+    topic: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required]
     })
   });
 
   // State
-  protected  patients: Patient[] = [];
+  protected patients: Patient[] = [];
   protected readonly filteredPatients$: Observable<Patient[]>;
   protected readonly errorMessage = signal<string>('');
 
   constructor() {
     // Initialize patients data
-    this.masterDataService.patientsSubject
+    this.masterDataService.patientsSubject$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(patients => this.patients = patients || []);
 
@@ -84,7 +84,7 @@ export class CreateChatRoomComponent {
     this.errorMessage.set('');
     const formValue = this.roomForm.getRawValue();
     const patient = formValue.patient;
-    
+
     if (typeof patient === 'string' || !patient.patientId) {
       console.error('Invalid patient selection');
       return;
@@ -137,14 +137,14 @@ export class CreateChatRoomComponent {
   }
 
   private extractSearchTerm(value: string | Patient): string {
-    return typeof value === 'string' ? 
-      value : 
+    return typeof value === 'string' ?
+      value :
       `${value.firstName} ${value.lastName}`;
   }
 
   private _filter(searchTerm: string): Patient[] {
     const filterValue = searchTerm.toLowerCase();
-    return this.patients.filter(patient => 
+    return this.patients.filter(patient =>
       `${patient.firstName} ${patient.lastName}`
         .toLowerCase()
         .includes(filterValue)

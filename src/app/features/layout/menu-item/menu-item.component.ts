@@ -75,7 +75,7 @@ export class MenuItemComponent implements OnInit {
     }
 
     private initializeUrlSubscription(): void {
-        this.navService.currentUrl
+        this.navService.currentUrl$
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(url => {
                 if (this.item().route && url) {

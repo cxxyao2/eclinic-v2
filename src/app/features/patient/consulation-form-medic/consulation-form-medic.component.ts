@@ -58,7 +58,7 @@ export class ConsulationFormMedicComponent implements AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
 
   // Signals
-  private readonly allMedications = this.masterService.medicationsSubject;
+  private readonly allMedications = this.masterService.medicationsSubject$;
   private readonly selectedMedication = signal<GetMedicationDTO>({});
   private readonly searchTerm = toSignal(
     this.medicationControl.valueChanges.pipe(
@@ -101,7 +101,7 @@ export class ConsulationFormMedicComponent implements AfterViewInit {
 
   // Private methods
   private subscribeToVisitChanges(): void {
-    this.consultationService.currentVisit
+    this.consultationService.currentVisit$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(visit => {
         if (visit === null) {

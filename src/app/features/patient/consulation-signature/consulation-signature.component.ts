@@ -71,7 +71,7 @@ export class ConsulationSignatureComponent implements AfterViewInit {
   }
 
   private subscribeToVisitChanges(): void {
-    this.consultationService.currentVisit
+    this.consultationService.currentVisit$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(visit => {
         if (!visit) {
@@ -162,7 +162,7 @@ export class ConsulationSignatureComponent implements AfterViewInit {
 
   private saveSignature(): void {
     const dataUrl = this.canvas.toDataURL('image/png');
-    const visit = this.consultationService.currentVisit.value;
+    const visit = this.consultationService.currentVisit$.value;
     if (!visit?.visitId) {
       this.snackbarService.show('Select a visiter first!');
       return;

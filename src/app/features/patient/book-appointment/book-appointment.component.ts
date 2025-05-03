@@ -98,28 +98,28 @@ export class BookAppointmentComponent implements AfterViewInit {
 
     protected readonly scheduleData$ = toSignal(
         merge(this.patientIdControl.valueChanges, this.workDayControl.valueChanges).pipe(
-          startWith({}),
-          switchMap(() => {
-            this.isLoadingResults.set(true);
-            return this.fetchScheduleData();
-          }),
-          map(this.processScheduleResponse.bind(this)),
-          tap(data => {
-            this.isLoadingResults.set(false);
-            this.initializeDataSource(data ?? []);
-          }),
-          catchError(error => {
-            this.isLoadingResults.set(false);
-            console.error('Error fetching schedule data:', error);
-            return of([]);
-          })
+            startWith({}),
+            switchMap(() => {
+                this.isLoadingResults.set(true);
+                return this.fetchScheduleData();
+            }),
+            map(this.processScheduleResponse.bind(this)),
+            tap(data => {
+                this.isLoadingResults.set(false);
+                this.initializeDataSource(data ?? []);
+            }),
+            catchError(error => {
+                this.isLoadingResults.set(false);
+                console.error('Error fetching schedule data:', error);
+                return of([]);
+            })
         ),
         { initialValue: [] }
-      );
+    );
 
     // Lifecycle Hooks
     public ngAfterViewInit(): void {
-        this.masterDataService.patientsSubject
+        this.masterDataService.patientsSubject$
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(data => this.patients.set(data));
 
@@ -142,7 +142,7 @@ export class BookAppointmentComponent implements AfterViewInit {
         });
     }
 
- 
+
 
     private fetchScheduleData() {
         const workDate = this.workDayControl.value;

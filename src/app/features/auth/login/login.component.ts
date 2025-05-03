@@ -70,7 +70,7 @@ export class LoginComponent {
 
   private handleLoginSuccess(response: any, email: string): void {
     localStorage.setItem('accessToken', response.accessToken);
-    this.masterService.userSubject.next(response.user);
+    this.masterService.userSubject$.next(response.user);
     this.errorMessage.set(null);
     this.router.navigateByUrl(this.returnUrl || '/dashboard');
 

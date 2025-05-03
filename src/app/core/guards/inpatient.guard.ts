@@ -9,11 +9,11 @@ export const inpatientGuard: CanActivateFn = (next: ActivatedRouteSnapshot,
   const masterService = inject(MasterDataService);
   const router = inject(Router);
   const snackbar = inject(SnackbarService);
-  const selectedPatient = masterService.selectedPatientSubject.value;
+  const selectedPatient = masterService.selectedPatientSubject$.value;
 
   if (!selectedPatient) {
     snackbar.show('You need to select a patient first', 'error-snackbar');
-    router.navigate(['/dashboard']); 
+    router.navigate(['/dashboard']);
     return false;
   }
 

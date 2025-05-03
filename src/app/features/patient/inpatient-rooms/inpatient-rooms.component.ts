@@ -43,7 +43,7 @@ export class InpatientRoomsComponent implements OnInit {
 
   // Protected signals
   protected groupedRooms = signal<Room[]>([]);
-  protected readonly selectedPatient = toSignal(this.masterService.selectedPatientSubject);
+  protected readonly selectedPatient = toSignal(this.masterService.selectedPatientSubject$);
 
 
 
@@ -59,7 +59,7 @@ export class InpatientRoomsComponent implements OnInit {
       .subscribe({
         next: (res) => {
           const data = res.data ?? [];
-          this.masterService.bedsSubject.next(data);
+          this.masterService.bedsSubject$.next(data);
           this.processRoomData(data);
         },
         error: (err) => console.error('Failed to load beds:', err)

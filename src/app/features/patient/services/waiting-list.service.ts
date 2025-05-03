@@ -13,7 +13,7 @@ export class WaitingListService {
   private readonly destroyRef = inject(DestroyRef);
   
   // BehaviorSubject to store the latest data
-  private readonly waitingListSubject = new BehaviorSubject<GetVisitRecordDTO[]>([]);
+  private readonly waitingListSubject$ = new BehaviorSubject<GetVisitRecordDTO[]>([]);
   
   // Observable that refreshes every 3 minutes
   private readonly refreshInterval = 3 * 60 * 1000; // 3 minutes in milliseconds
@@ -24,7 +24,7 @@ export class WaitingListService {
   
   // Public method to get the waiting list as an observable
   public getWaitingList(): Observable<GetVisitRecordDTO[]> {
-    return this.waitingListSubject.asObservable();
+    return this.waitingListSubject$.asObservable();
   }
   
   // Public method to force a refresh
@@ -57,6 +57,6 @@ export class WaitingListService {
           return [];
         })
       )
-      .subscribe(data => this.waitingListSubject.next(data));
+      .subscribe(data => this.waitingListSubject$.next(data));
   }
 }

@@ -93,7 +93,7 @@ export class CheckInComponent implements AfterViewInit, OnInit {
   }
 
   public ngAfterViewInit(): void {
-    this.masterService.patientsSubject
+    this.masterService.patientsSubject$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(data => this.patients.set(data));
 

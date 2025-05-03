@@ -22,19 +22,19 @@ import { catchError, map, tap } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class ConsultationService {
-  public readonly currentVisit = new BehaviorSubject<GetVisitRecordDTO | null>(null);
+  public readonly currentVisit$ = new BehaviorSubject<GetVisitRecordDTO | null>(null);
   public readonly prescriptions = signal<GetMedicationDTO[]>([]);
   public readonly isLoading = signal<boolean>(false);
   public readonly errorMessage = signal<string>('');
 
   private readonly visitService = inject(VisitRecordsService);
   private readonly prescriptionService = inject(PrescriptionsService);
-  private inpatientService = inject(InpatientsService);
+  private readonly inpatientService = inject(InpatientsService);
   private readonly destroyRef = inject(DestroyRef);
 
 
   public startConsultation(): Observable<GetVisitRecordDTO | null> {
-    const visit = this.currentVisit.value;
+    const visit = this.currentVisit$.value;
     if (!visit) {
       return of(null);
     }
@@ -56,7 +56,7 @@ export class ConsultationService {
   }
 
   public saveVisitRecord(needAdmission: boolean): Observable<[GetVisitRecordDTOServiceResponse, Int32ServiceResponse, GetInpatientDTOServiceResponse]> {
-    const visit = this.currentVisit.value;
+    const visit = this.currentVisit$.value;
 
     // First save the visit record
     if (!visit) throw new Error('No active visit found. Please select a visit record first.');
@@ -109,16 +109,16 @@ export class ConsultationService {
 
   public clearPrescriptions(): void {
     this.prescriptions.set([]);
-    this.currentVisit.next({});
+    this.currentVisit$.next({});
   }
 
 
 
   // Signature methods
   public setSignaturePath(path: string): void {
-    const currentVisit = this.currentVisit.value;
+    const currentVisit = this.currentVisit$.value;
     if (currentVisit) {
-      this.currentVisit.next({ ...currentVisit, practitionerSignaturePath: path });
+      this.currentVisit$.next({ ...currentVisit, practitionerSignaturePath: path });
     }
   }
 

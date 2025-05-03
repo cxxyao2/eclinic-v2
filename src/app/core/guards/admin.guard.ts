@@ -16,7 +16,7 @@ export const adminGuard: CanActivateFn = (next: ActivatedRouteSnapshot,
   const router = inject(Router);
   const snackbar = inject(SnackbarService);
 
-  const user = masterService.userSubject.value;
+  const user = masterService.userSubject$.value;
 
   if (user && !isAdmin(user)) {
     snackbar.show('You are not admin', 'error-snackbar');

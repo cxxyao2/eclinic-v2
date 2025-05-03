@@ -41,7 +41,7 @@ export class InpatientBedAssignComponent implements OnInit {
 
 
   // Protected properties for template access
-  protected readonly patientInWaiting = toSignal(this.masterService.selectedPatientSubject);
+  protected readonly patientInWaiting = toSignal(this.masterService.selectedPatientSubject$);
   protected roomNumber: string | null = null;
   protected bedsOfRoom: readonly GetBedDTO[] = [];
   protected readonly isLoadingResults = signal<boolean>(false);
@@ -64,8 +64,8 @@ export class InpatientBedAssignComponent implements OnInit {
       inpatientId: this.patientInWaiting()?.inpatientId,
       patientName: this.patientInWaiting()?.patientName,
       practitionerName: this.patientInWaiting()?.practitionerName,
-      nurseId: this.masterService.userSubject.value?.userID,
-      nurseName: this.masterService.userSubject.value?.userName
+      nurseId: this.masterService.userSubject$.value?.userID,
+      nurseName: this.masterService.userSubject$.value?.userName
     };
 
     this.bedsOfRoom = currentBeds.map(bed =>
@@ -129,7 +129,7 @@ export class InpatientBedAssignComponent implements OnInit {
         this.errorMessage.set(JSON.stringify(error.error.errors) || 'Failed to save changes');
       },
       complete: () => {
-        this.masterService.selectedPatientSubject.next(null);
+        this.masterService.selectedPatientSubject$.next(null);
         this.router.navigate(['/dashboard']);
       },
     });
@@ -138,7 +138,7 @@ export class InpatientBedAssignComponent implements OnInit {
   private initializeRoomData(): void {
     combineLatest([
       this.route.paramMap,
-      this.masterService.bedsSubject
+      this.masterService.bedsSubject$
     ]).pipe(
       map(([params, beds]) => ({
         roomNumber: params.get('roomNumber'),
@@ -172,7 +172,7 @@ export class InpatientBedAssignComponent implements OnInit {
   }
 
   private saveInpatients() {
-    const nurseId = this.masterService.userSubject.value?.userID;
+    const nurseId = this.masterService.userSubject$.value?.userID;
     const changedInPatients = this.bedsOfRoom
       .filter(bed => bed.inpatientId)
       .map(bed => ({
