@@ -1,15 +1,16 @@
-import { ApplicationConfig, isDevMode } from '@angular/core';
+import { ApplicationConfig, ErrorHandler, isDevMode, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { provideZoneChangeDetection } from '@angular/core';
 import { provideTransloco } from '@jsverse/transloco';
 import { NGX_ECHARTS_CONFIG } from 'ngx-echarts';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { BASE_PATH } from '@libs/api-client/variables';
+import { GlobalErrorHandler } from '@core/services/global-error-handler.service';
+import { authInterceptor } from '@core/interceptors/auth.interceptor';
 
 import { routes } from './app.routes';
 import { TranslocoHttpLoader } from './transloco-loader';
-import { authInterceptor } from '@core/interceptors/auth.interceptor';
+import { errorInterceptor } from '@core/interceptors/error-interceptor';
 
 // Configuration objects
 const zoneConfig = {
@@ -50,7 +51,8 @@ const routingProviders = [
 const httpProviders = [
   provideHttpClient(
     withInterceptors([
-      authInterceptor
+      authInterceptor,
+      errorInterceptor
     ])
   )
 ];
@@ -80,6 +82,8 @@ export const appConfig: ApplicationConfig = {
     ...routingProviders,
     ...httpProviders,
     ...thirdPartyProviders,
-    ...environmentProviders
+    ...environmentProviders,
+    // Global error handler for uncaught exceptions
+    { provide: ErrorHandler, useClass: GlobalErrorHandler }
   ]
 };

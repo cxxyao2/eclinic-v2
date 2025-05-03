@@ -1,10 +1,10 @@
 import { DestroyRef, PLATFORM_ID, inject, Injectable } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { GetBedDTO, GetImageRecordDTO, GetInpatientDTO, GetMedicationDTO, GetPatientDTO, GetPractitionerDTO, ImageRecordsService, User, UsersService } from '@libs/api-client';
+import { GetBedDTO, GetImageRecordDTO, GetInpatientDTO, GetMedicationDTO, GetPatientDTO, GetPractitionerDTO, ImageRecordsService, MedicationsService, PatientsService, PractitionersService, User, UsersService } from '@libs/api-client';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { PractitionersService, PatientsService, MedicationsService } from '@libs/api-client';
+
 import { jwtDecode } from 'jwt-decode';
 
 @Injectable({
