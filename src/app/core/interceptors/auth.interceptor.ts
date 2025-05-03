@@ -59,6 +59,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   if (token) {
     // Check if token is expired
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const decodedToken: any = jwtDecode(token);
     const isExpired = decodedToken.exp * 1000 < Date.now();
 

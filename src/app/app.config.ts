@@ -1,6 +1,6 @@
 import { ApplicationConfig, isDevMode } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, HTTP_INTERCEPTORS, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideZoneChangeDetection } from '@angular/core';
 import { provideTransloco } from '@jsverse/transloco';
 import { NGX_ECHARTS_CONFIG } from 'ngx-echarts';
@@ -37,8 +37,9 @@ const translocoConfig = {
 
 // Environment configuration
 const getBaseUrl = (): string => {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
   const envWindow = window as any;
-  return envWindow.__env?.BaseURL || '';
+  return envWindow.__env?.BaseURL ?? '';
 };
 
 // Provider configurations

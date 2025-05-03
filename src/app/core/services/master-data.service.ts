@@ -54,6 +54,7 @@ export class MasterDataService {
 
     return new Observable<User | null>(observer => {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
         const decodedToken: any = jwtDecode(token);
         const isExpired = decodedToken.exp * 1000 < Date.now();
 
@@ -80,7 +81,6 @@ export class MasterDataService {
 
         this.usersService.apiUsersIdGet(Number(userId))
           .pipe(
-            map((response: any) => response.data ?? null),
             takeUntilDestroyed(this.destroyRef)
           ).subscribe({
             next: (user) => {

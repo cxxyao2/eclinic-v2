@@ -11,7 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
 // Services
-import { AuthService } from '@libs/api-client';
+import { AuthService, LoginResponseDto, User } from '@libs/api-client';
 import { MasterDataService } from '@core/services/master-data.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -68,11 +68,11 @@ export class LoginComponent {
       });
   }
 
-  private handleLoginSuccess(response: any, email: string): void {
-    localStorage.setItem('accessToken', response.accessToken);
-    this.masterService.userSubject$.next(response.user);
+  private handleLoginSuccess(response: LoginResponseDto, email: string): void {
+    localStorage.setItem('accessToken', response.accessToken as string);
+    this.masterService.userSubject$.next(response.user as User);
     this.errorMessage.set(null);
-    this.router.navigateByUrl(this.returnUrl || '/dashboard');
+    this.router.navigateByUrl(this.returnUrl ?? '/dashboard');
 
   }
 

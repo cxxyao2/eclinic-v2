@@ -35,7 +35,7 @@ export class DialogSimpleDialog implements OnInit {
     items: this.itemsControl,
   });
 
- 
+
   isArray = signal<boolean>(false);
   listData = signal<Array<any>>([]);
 

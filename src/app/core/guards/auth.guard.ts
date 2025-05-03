@@ -2,9 +2,7 @@ import { SnackbarService } from '../services/snackbar-service.service';
 import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot } from '@angular/router';
 import { MasterDataService } from '../services/master-data.service';
 import { inject } from '@angular/core';
-import { UserRole } from '@libs/api-client';
 import { map } from 'rxjs';
-import { User } from '@libs/api-client';
 
 export const authGuard: CanActivateFn = (next: ActivatedRouteSnapshot,
   state: RouterStateSnapshot) => {

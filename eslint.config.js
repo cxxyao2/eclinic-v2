@@ -13,6 +13,9 @@ module.exports = tseslint.config(
       ...tseslint.configs.stylistic,
       ...angular.configs.tsRecommended,
     ],
+    plugins: {
+      "unused-imports": unusedImports
+    },
     processor: angular.processInlineTemplates,
     rules: {
       "@angular-eslint/directive-selector": [

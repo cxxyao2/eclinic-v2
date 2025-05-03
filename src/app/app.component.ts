@@ -11,7 +11,7 @@ import { MasterDataService } from '@core/services/master-data.service';
 })
 export class AppComponent implements OnInit {
 
-  private masterDataService = inject(MasterDataService);
+  private readonly masterDataService = inject(MasterDataService);
 
   ngOnInit() {
     this.masterDataService.initializeData();

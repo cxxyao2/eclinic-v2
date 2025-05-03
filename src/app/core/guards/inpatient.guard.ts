@@ -1,11 +1,9 @@
 import { SnackbarService } from '../services/snackbar-service.service';
-import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot } from '@angular/router';
+import {  CanActivateFn, Router } from '@angular/router';
 import { MasterDataService } from '../services/master-data.service';
 import { inject } from '@angular/core';
-import { UserRole } from '@libs/api-client';
 
-export const inpatientGuard: CanActivateFn = (next: ActivatedRouteSnapshot,
-  state: RouterStateSnapshot) => {
+export const inpatientGuard: CanActivateFn = () => {
   const masterService = inject(MasterDataService);
   const router = inject(Router);
   const snackbar = inject(SnackbarService);
