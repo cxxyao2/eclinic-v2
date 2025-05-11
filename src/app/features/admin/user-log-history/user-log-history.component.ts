@@ -61,7 +61,7 @@ export class UserLogHistoryComponent implements OnInit, AfterViewInit {
   private loadUserLogHistory(): void {
     this.isLoading.set(true);
     this.userLogHistoryService.apiUserLogHistoryGet()
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(takeUntilDestroyed())
       .subscribe({
         next: (data) => {
           this.dataSource.data = data as UserLogHistory[];

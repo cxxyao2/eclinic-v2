@@ -115,7 +115,7 @@ export class ConsultationFormComponent implements OnInit {
 
     // Subscribe to visitControl value changes
     this.visitControl.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(takeUntilDestroyed())
       .subscribe(visitValue => {
         this.consultationService.currentVisit$.next(visitValue);
 
@@ -165,7 +165,7 @@ export class ConsultationFormComponent implements OnInit {
     dialogRef.afterClosed()
       .pipe(
         map(result => result === 'Confirm'),
-        takeUntilDestroyed(this.destroyRef))
+        takeUntilDestroyed())
       .subscribe({
         next: (confirm) => {
           if (confirm) {
@@ -187,7 +187,7 @@ export class ConsultationFormComponent implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set('');
     this.consultationService.saveVisitRecord(isAdmission)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(takeUntilDestroyed())
       .subscribe({
         next: ([visitResult, prescriptionResult, inpatientResult]) => {
           this.refreshFormAndRelated();

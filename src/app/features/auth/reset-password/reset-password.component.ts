@@ -94,7 +94,7 @@ export class ResetPasswordComponent {
       newPassword: this.resetForm.value.newPassword!,
       confirmPassword: this.resetForm.value.confirmPassword!
     }).pipe(
-      takeUntilDestroyed(this.destroyRef)
+      takeUntilDestroyed()
     ).subscribe({
       next: () => {
         this.message.set('Password reset successful');

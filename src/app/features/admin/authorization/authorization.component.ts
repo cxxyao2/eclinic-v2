@@ -36,7 +36,7 @@ export class AuthorizationComponent implements OnInit {
     this.isLoading.set(true);
     this.userService.apiUsersGet()
       .pipe(
-        takeUntilDestroyed(this.destroyRef),
+        takeUntilDestroyed(),
         finalize(() => this.isLoading.set(false))
       )
       .subscribe({
@@ -62,7 +62,7 @@ export class AuthorizationComponent implements OnInit {
       .pipe(
         concatMap((user) =>
           this.userService.apiUsersPut(user)),
-        takeUntilDestroyed(this.destroyRef),
+        takeUntilDestroyed(),
         finalize(() => {
           this.isLoading.set(false);
           this.router.navigate(['/dashboard']);

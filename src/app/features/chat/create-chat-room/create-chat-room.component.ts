@@ -64,7 +64,7 @@ export class CreateChatRoomComponent {
   constructor() {
     // Initialize patients data
     this.masterDataService.patientsSubject$
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(takeUntilDestroyed())
       .subscribe(patients => this.patients = patients || []);
 
     // Setup patient autocomplete
@@ -122,7 +122,7 @@ export class CreateChatRoomComponent {
           map(() => response.data?.chatRoomId)
         );
       }),
-      takeUntilDestroyed(this.destroyRef)
+      takeUntilDestroyed()
     ).subscribe({
       next: (chatRoomId) => {
         this.router.navigate(['/chat', chatRoomId]);

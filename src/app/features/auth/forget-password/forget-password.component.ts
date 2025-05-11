@@ -58,7 +58,7 @@ export class ForgetPasswordComponent {
    */
   private requestPasswordReset(email: string): void {
     this.authService.apiAuthRequestPasswordResetPost({ email })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(takeUntilDestroyed())
       .subscribe({
         next: () => {
           this.message.set('Password reset link has been sent to your email');

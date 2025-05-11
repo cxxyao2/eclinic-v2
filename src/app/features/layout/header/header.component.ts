@@ -108,7 +108,7 @@ export class HeaderComponent {
 
     const dialogRef = this.dialog.open(DialogSimpleDialog, dialogConfig);
     dialogRef.afterClosed().pipe(
-      takeUntilDestroyed(this.destroyRef),
+      takeUntilDestroyed(),
       filter((result): result is object => typeof result === 'object' && !!result),
       tap(result => {
         this.masterDataService.selectedPatientSubject$.next(result);

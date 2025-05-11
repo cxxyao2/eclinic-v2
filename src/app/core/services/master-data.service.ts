@@ -81,7 +81,7 @@ export class MasterDataService {
 
         this.usersService.apiUsersIdGet(Number(userId))
           .pipe(
-            takeUntilDestroyed(this.destroyRef)
+            takeUntilDestroyed()
           ).subscribe({
             next: (user) => {
               if (user) {
@@ -121,7 +121,7 @@ export class MasterDataService {
           this.messageSubject$.next(error?.message ?? JSON.stringify(error));
           return [];
         }),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed()
       ).subscribe({
         next: (data) => {
           this.imageRecordsSubjet$.next(data);
@@ -139,7 +139,7 @@ export class MasterDataService {
           this.messageSubject$.next(error?.message ?? JSON.stringify(error));
           return [];
         }),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed()
       ).subscribe({
         next: (data) => {
           this.practitionersSubject$.next(data);
@@ -159,7 +159,7 @@ export class MasterDataService {
           this.messageSubject$.next(error?.message ?? JSON.stringify(error));
           return [];
         }),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed()
       ).subscribe({
         next: (data) => {
           this.medicationsSubject$.next(data);
@@ -177,7 +177,7 @@ export class MasterDataService {
           this.messageSubject$.next(error?.message ?? JSON.stringify(error));
           return [];
         }),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed()
       ).subscribe({
         next: (data) => {
           this.patientsSubject$.next(data);

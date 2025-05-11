@@ -76,7 +76,7 @@ export class MenuItemComponent implements OnInit {
 
     private initializeUrlSubscription(): void {
         this.navService.currentUrl$
-            .pipe(takeUntilDestroyed(this.destroyRef))
+            .pipe(takeUntilDestroyed())
             .subscribe(url => {
                 if (this.item().route && url) {
                     this.expanded.set(url.startsWith(`/${this.item().route}`));

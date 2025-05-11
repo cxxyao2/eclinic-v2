@@ -32,15 +32,15 @@ export class MenuComponent implements OnInit {
   private readonly breakpointObserver = inject(BreakpointObserver);
   private readonly destroyRef = inject(DestroyRef);
   private readonly masterDataService = inject(MasterDataService);
-  
+
   ngOnInit(): void {
     // Initialize master data
     this.masterDataService.initializeData();
-    
+
     // Monitor screen size changes
     this.breakpointObserver
       .observe([Breakpoints.XSmall, Breakpoints.Small])
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(takeUntilDestroyed())
       .subscribe(result => {
         // If screen is small (XSmall or Small breakpoint matches)
         if (result.matches) {

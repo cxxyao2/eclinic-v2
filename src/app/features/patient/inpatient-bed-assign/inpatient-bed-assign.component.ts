@@ -122,7 +122,7 @@ export class InpatientBedAssignComponent implements OnInit {
       this.saveBeds(),
       this.saveInpatients()
     ]).pipe(
-      takeUntilDestroyed(this.destroyRef),
+      takeUntilDestroyed(),
       finalize(() => this.isLoadingResults.set(false))
     ).subscribe({
       error: (error: HttpErrorResponse) => {
@@ -144,7 +144,7 @@ export class InpatientBedAssignComponent implements OnInit {
         roomNumber: params.get('roomNumber'),
         filteredBeds: beds.filter(b => b.roomNumber === params.get('roomNumber'))
       })),
-      takeUntilDestroyed(this.destroyRef)
+      takeUntilDestroyed()
     ).subscribe(({ roomNumber, filteredBeds }) => {
       this.roomNumber = roomNumber;
       this.bedsOfRoom = [...filteredBeds];

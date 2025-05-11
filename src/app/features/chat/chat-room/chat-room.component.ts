@@ -111,19 +111,19 @@ export class ChatRoomComponent {
   constructor() {
     this.route.paramMap.pipe(
       map(params => Number(params.get('roomId'))),
-      takeUntilDestroyed(this.destroyRef)
+      takeUntilDestroyed()
     ).subscribe(id => this.roomId.set(id));
 
     this.initializeRoom();
 
     // Subscribe to chat service messages
     this.chatService.messages$
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(takeUntilDestroyed())
       .subscribe(messages => this.messages.set(messages));
 
     // Subscribe to chat service errors
     this.chatService.errors$
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(takeUntilDestroyed())
       .subscribe(error => this.errorMessage.set(error));
 
 

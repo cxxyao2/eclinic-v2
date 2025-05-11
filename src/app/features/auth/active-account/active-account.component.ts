@@ -63,19 +63,19 @@ export class ActiveAccountComponent implements OnDestroy {
     this.authService.apiAuthActivatePost({
       code: token
     }).
-    pipe(takeUntilDestroyed(this.destroyRef)).
-    subscribe({
-      next: () => {
-        this.message.set('Your account has been successfully activated. \nNow you can proceed to login');
-        this.submitted.set(true);
-        this.isOkay.set(true);
-        this.redirectTimeout = window.setTimeout(() => this.redirectToLogin(), this.redirectDelay);
-      },
-      error: () => {
-        this.message.set('Token has been expired or invalid');
-        this.submitted.set(true);
-        this.isOkay.set(false);
-      }
-    });
+      pipe(takeUntilDestroyed()).
+      subscribe({
+        next: () => {
+          this.message.set('Your account has been successfully activated. \nNow you can proceed to login');
+          this.submitted.set(true);
+          this.isOkay.set(true);
+          this.redirectTimeout = window.setTimeout(() => this.redirectToLogin(), this.redirectDelay);
+        },
+        error: () => {
+          this.message.set('Token has been expired or invalid');
+          this.submitted.set(true);
+          this.isOkay.set(false);
+        }
+      });
   }
 }

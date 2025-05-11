@@ -10,7 +10,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 })
 export class SignalRChatService {
   public hubConnection: HubConnection | undefined;
-  private readonly  errorSubject$ = new Subject<string>();
+  private readonly errorSubject$ = new Subject<string>();
   private readonly messagesSubject$ = new BehaviorSubject<ChatMessageDTO[]>([]);
   private readonly apiChatService = inject(ChatService);
 
@@ -33,7 +33,7 @@ export class SignalRChatService {
     try {
       await this.hubConnection.start();
       console.log('Connection started');
-      
+
       // Set up message receiver
       this.hubConnection.on('ReceiveMessage', (message: ChatMessageDTO) => {
         const currentMessages = this.messagesSubject$.value;
@@ -106,7 +106,7 @@ export class SignalRChatService {
       this.apiChatService.apiChatRoomsRoomIdMessagesGet(roomId).pipe(
         map(response => response?.data ?? []),
         map(messages => messages.reverse()),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed()
       ).subscribe({
         next: (messages) => this.messagesSubject$.next(messages),
         error: (err) => {

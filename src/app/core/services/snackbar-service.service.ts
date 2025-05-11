@@ -12,7 +12,7 @@ export class SnackbarService {
 
   constructor(private snackBar: MatSnackBar) {
     this.snackbarSubject
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(takeUntilDestroyed())
       .subscribe(({ message, panelClass }) => {
         this.snackBar.open(message, 'Close', {
           duration: 3000, // Duration in milliseconds
