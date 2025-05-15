@@ -106,7 +106,7 @@ export class SignalRChatService {
       this.apiChatService.apiChatRoomsRoomIdMessagesGet(roomId).pipe(
         map(response => response?.data ?? []),
         map(messages => messages.reverse()),
-        takeUntilDestroyed()
+        takeUntilDestroyed(this.destroyRef)
       ).subscribe({
         next: (messages) => this.messagesSubject$.next(messages),
         error: (err) => {

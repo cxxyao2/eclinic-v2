@@ -102,7 +102,7 @@ export class ConsulationFormMedicComponent implements AfterViewInit {
   // Private methods
   private subscribeToVisitChanges(): void {
     this.consultationService.currentVisit$
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(visit => {
         if (visit === null) {
           this.dataSource.data = [];

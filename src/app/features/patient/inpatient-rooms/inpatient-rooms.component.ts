@@ -55,7 +55,7 @@ export class InpatientRoomsComponent implements OnInit {
   // Private methods
   private loadBeds(): void {
     this.bedService.apiBedsGet()
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
           const data = res.data ?? [];

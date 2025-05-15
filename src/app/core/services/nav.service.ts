@@ -12,7 +12,7 @@ export class NavService {
   destroyRef = inject(DestroyRef);
 
   constructor(private router: Router) {
-    this.router.events.pipe(takeUntilDestroyed()).subscribe((event: Event) => {
+    this.router.events.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event: Event) => {
       if (event instanceof NavigationEnd) {
         this.currentUrl$.next(event.urlAfterRedirects);
       }

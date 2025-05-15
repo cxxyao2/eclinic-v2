@@ -51,7 +51,7 @@ export class ConsultationService {
         console.error('Error starting consultation', error);
         return of(null);
       }),
-      takeUntilDestroyed(),
+      takeUntilDestroyed(this.destroyRef),
     );
   }
 

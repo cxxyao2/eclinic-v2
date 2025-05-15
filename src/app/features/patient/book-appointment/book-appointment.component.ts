@@ -120,7 +120,7 @@ export class BookAppointmentComponent implements AfterViewInit {
     // Lifecycle Hooks
     public ngAfterViewInit(): void {
         this.masterDataService.patientsSubject$
-            .pipe(takeUntilDestroyed())
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(data => this.patients.set(data));
 
         this.setupPatientSubscription();
@@ -132,7 +132,7 @@ export class BookAppointmentComponent implements AfterViewInit {
             startWith(this.patientIdControl.value),  // Emit initial value
             debounceTime(300),
             distinctUntilChanged(),
-            takeUntilDestroyed(),
+            takeUntilDestroyed(this.destroyRef),
             map(patientId => patientId ?? 0),
             map(patientId => this.patients().find(p => p.patientId === patientId))
         ).subscribe(patient => {
@@ -196,7 +196,7 @@ export class BookAppointmentComponent implements AfterViewInit {
                 )
             ),
             finalize(() => this.handleUpdateCompletion(successCount, errorCount)),
-            takeUntilDestroyed()
+            takeUntilDestroyed(this.destroyRef)
         ).subscribe();
     }
 

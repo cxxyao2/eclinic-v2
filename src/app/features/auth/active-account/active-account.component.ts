@@ -63,7 +63,7 @@ export class ActiveAccountComponent implements OnDestroy {
     this.authService.apiAuthActivatePost({
       code: token
     }).
-      pipe(takeUntilDestroyed()).
+      pipe(takeUntilDestroyed(this.destroyRef)).
       subscribe({
         next: () => {
           this.message.set('Your account has been successfully activated. \nNow you can proceed to login');

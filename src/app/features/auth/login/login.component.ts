@@ -61,7 +61,7 @@ export class LoginComponent {
   // Private methods
   private handleLogin(loginData: { email: string; password: string }): void {
     this.authService.apiAuthLoginPost(loginData)
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => this.handleLoginSuccess(response, loginData.email),
         error: (error: HttpErrorResponse) => this.handleLoginError(error)

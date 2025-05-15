@@ -68,7 +68,7 @@ export class RegisterComponent {
 
       this.errorMessage.set(null);
       this.authService.apiAuthRegisterPost(registerData)
-        .pipe(takeUntilDestroyed())
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: () => {
             this.router.navigate(['/login'], {

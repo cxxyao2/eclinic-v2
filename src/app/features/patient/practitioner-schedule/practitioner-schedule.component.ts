@@ -116,7 +116,7 @@ export class PractitionerScheduleComponent implements AfterViewInit {
 
     // Reset to first page when sort changes
     this.sort.sortChange
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => (this.paginator.pageIndex = 0));
 
     merge(
@@ -165,7 +165,7 @@ export class PractitionerScheduleComponent implements AfterViewInit {
           total: response.data?.length || 0
         };
       }),
-      takeUntilDestroyed()
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe(result => {
       this.dataSource.data = result.data || [];
       this.dataSource.paginator = this.paginator;
@@ -213,7 +213,7 @@ export class PractitionerScheduleComponent implements AfterViewInit {
     });
 
     dialogRef.afterClosed()
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(result => {
         if (result !== undefined) {
           this.deletedData.push(...this.dataSource.data.filter((entity) => (entity.scheduleId ?? 0) > 0));
@@ -226,7 +226,7 @@ export class PractitionerScheduleComponent implements AfterViewInit {
 
   private initializePractitionerData(): void {
     this.masterDataService.practitionersSubject$
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (data) => this.practitioners.set(data),
         error: (error) => console.error('Failed to load practitioners:', error)
@@ -241,7 +241,7 @@ export class PractitionerScheduleComponent implements AfterViewInit {
     const scheduleIds = dataArray.map(item => item.scheduleId!);
 
     this.scheduleService.apiPractitionerSchedulesBatchDeletePost(scheduleIds)
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           this.snackbarService.show('Schedules deleted successfully', 'success-snackbar');
@@ -369,7 +369,7 @@ export class PractitionerScheduleComponent implements AfterViewInit {
     this.isLoadingResults.set(true);
 
     this.scheduleService.apiPractitionerSchedulesBatchAddPost(schedulesToAdd)
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {

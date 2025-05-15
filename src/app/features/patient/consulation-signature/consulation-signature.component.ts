@@ -72,7 +72,7 @@ export class ConsulationSignatureComponent implements AfterViewInit {
 
   private subscribeToVisitChanges(): void {
     this.consultationService.currentVisit$
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(visit => {
         if (!visit) {
           this.clearCanvas();
@@ -182,7 +182,7 @@ export class ConsulationSignatureComponent implements AfterViewInit {
     this.isLoading.set(true);
 
     this.signService.apiSignaturesPost(signDTO)
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: StringServiceResponse) => {
           this.consultationService.setSignaturePath(res.data ?? '');

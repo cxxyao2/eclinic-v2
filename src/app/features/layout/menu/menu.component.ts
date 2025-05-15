@@ -40,7 +40,7 @@ export class MenuComponent implements OnInit {
     // Monitor screen size changes
     this.breakpointObserver
       .observe([Breakpoints.XSmall, Breakpoints.Small])
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(result => {
         // If screen is small (XSmall or Small breakpoint matches)
         if (result.matches) {

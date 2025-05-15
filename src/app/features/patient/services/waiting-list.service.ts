@@ -39,7 +39,7 @@ export class WaitingListService {
 
     // Set up timer for periodic refresh
     timer(this.refreshInterval, this.refreshInterval)
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.fetchWaitingList());
   }
 

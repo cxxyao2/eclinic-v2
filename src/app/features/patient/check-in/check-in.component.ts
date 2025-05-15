@@ -86,7 +86,7 @@ export class CheckInComponent implements AfterViewInit, OnInit {
 
     // Subscribe to patient ID control changes
     this.patientIdControl.valueChanges
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(patientId => {
         this.filterAppointmentsByPatient(patientId ?? 0);
       });
@@ -94,7 +94,7 @@ export class CheckInComponent implements AfterViewInit, OnInit {
 
   public ngAfterViewInit(): void {
     this.masterService.patientsSubject$
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(data => this.patients.set(data));
 
     this.dataSource.paginator = this.paginator;
@@ -125,7 +125,7 @@ export class CheckInComponent implements AfterViewInit, OnInit {
     this.isLoading.set(true);
     this.scheduleService.apiPractitionerSchedulesByDateGet(formattedDate)
       .pipe(
-        takeUntilDestroyed(),
+        takeUntilDestroyed(this.destroyRef),
         finalize(() => this.isLoading.set(false)))
       .subscribe({
         next: (res: GetPractitionerScheduleDTOListServiceResponse) => {
@@ -143,7 +143,7 @@ export class CheckInComponent implements AfterViewInit, OnInit {
     const formatedDate = bookedDate.toISOString();
     this.isLoading.set(true);
     this.visitService.apiVisitRecordsWaitingListGet(formatedDate)
-      .pipe(takeUntilDestroyed(),
+      .pipe(takeUntilDestroyed(this.destroyRef),
         finalize(() => this.isLoading.set(false)))
       .subscribe({
         next: (res: GetVisitRecordDTOListServiceResponse) => {
@@ -164,7 +164,7 @@ export class CheckInComponent implements AfterViewInit, OnInit {
 
     this.isLoading.set(true);
     this.scheduleService.apiPractitionerSchedulesPut(newSchedule)
-      .pipe(takeUntilDestroyed(),
+      .pipe(takeUntilDestroyed(this.destroyRef),
         finalize(() => this.isLoading.set(false)))
       .subscribe({
         next: (data) => console.log('updated', data),
@@ -181,7 +181,7 @@ export class CheckInComponent implements AfterViewInit, OnInit {
 
     this.isLoading.set(true);
     this.visitService.apiVisitRecordsPost(newVisit)
-      .pipe(takeUntilDestroyed(),
+      .pipe(takeUntilDestroyed(this.destroyRef),
         finalize(() => this.isLoading.set(false)))
       .subscribe({
         next: (rep: GetVisitRecordDTOServiceResponse) => {
